@@ -8,12 +8,12 @@ import math
 from typing import Optional
 
 # These thresholds are imported by both bot.py and dashboard.py
-ENTRY_PRICE          = 0.65
+ENTRY_PRICE          = 0.82
 EXIT_PRICE           = 0.50
-TIME_WINDOW          = 10.0
-MIN_SETTLEMENT_SCORE = 0.30
-MIN_CONVICTION       = 0.35
-MIN_EDGE             = 0.01
+TIME_WINDOW          = 6.0
+MIN_SETTLEMENT_SCORE = 0.40
+MIN_CONVICTION       = 0.55
+MIN_EDGE             = 0.03
 MAX_CONSECUTIVE_LOSSES = 2
 
 def pick_side(up: float, down: float) -> str:
