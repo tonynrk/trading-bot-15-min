@@ -8,7 +8,6 @@ apikey.json
 bot_state.json
 bot_persistent.json
 *.pid
-*.log
 trades.jsonl
 
 # Python
