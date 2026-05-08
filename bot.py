@@ -926,6 +926,22 @@ def can_place_order_now(asset: str) -> bool:
         return True
     return bool(kalshi_api_key_id and private_key is not None)
 
+
+def refresh_position_from_kalshi(asset: str, pos: dict) -> None:
+    """Update pos['size'] from /portfolio/positions and pos['entry'] from /fills.
+    Mutates `pos` in-place; logs any drift. Best-effort — silent on API errors."""
+    actual_count = get_position_count(pos["ticker"], asset=asset)
+    if actual_count is not None and actual_count > 0 and actual_count != pos.get("size"):
+        Log(f"{asset} Position size {pos.get('size')}→{actual_count} (late fills)", asset=asset)
+        pos["size"] = actual_count
+    order_id = _last_buy_order_id.get(asset, "")
+    summary = get_fill_summary(order_id, asset=asset) if order_id else None
+    if summary and summary["total_count"] > 0:
+        new_entry = summary["avg_price"]
+        if abs(new_entry - pos.get("entry", 0)) > 0.005:
+            Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
+        pos["entry"] = new_entry
+
 # =========================
 # Per-Asset Processing
 # =========================
@@ -1056,19 +1072,7 @@ def process_asset(asset: str):
         # Quarter rolled → held to resolution
         if current_quarter_index() != pos["quarter_index"]:
             won = is_win(cur)  # contract near $1 = win
-            # Refresh size from Kalshi position (source of truth — incl. late fills)
-            actual_count = get_position_count(pos["ticker"], asset=asset)
-            if actual_count is not None and actual_count > 0 and actual_count != pos.get("size"):
-                Log(f"{asset} Position size {pos.get('size')}→{actual_count} (late fills)", asset=asset)
-                pos["size"] = actual_count
-            # Refresh avg entry from fills
-            order_id = _last_buy_order_id.get(asset, "")
-            summary = get_fill_summary(order_id, asset=asset) if order_id else None
-            if summary and summary["total_count"] > 0:
-                new_entry = summary["avg_price"]
-                if abs(new_entry - pos.get("entry", 0)) > 0.005:
-                    Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
-                pos["entry"] = new_entry
+            refresh_position_from_kalshi(asset, pos)
             sz = pos.get("size", ASSET_ORDER_SIZE[asset])
             pnl = compute_pnl(pos["entry"], 1.0 if won else 0.0, sz)
             if won:
@@ -1087,19 +1091,7 @@ def process_asset(asset: str):
         # Stop-loss
         if cur <= EXIT:
             asset_phase[asset] = "STOP_LOSS"  # prevent re-entry on next poll
-            # Refresh size from Kalshi position (source of truth — incl. late fills)
-            actual_count = get_position_count(pos["ticker"], asset=asset)
-            if actual_count is not None and actual_count > 0 and actual_count != pos.get("size"):
-                Log(f"{asset} Position size {pos.get('size')}→{actual_count} (late fills)", asset=asset)
-                pos["size"] = actual_count
-            # Refresh avg fill price from fills (for accurate PnL)
-            order_id = _last_buy_order_id.get(asset, "")
-            summary = get_fill_summary(order_id, asset=asset) if order_id else None
-            if summary and summary["total_count"] > 0:
-                new_entry = summary["avg_price"]
-                if abs(new_entry - pos.get("entry", 0)) > 0.005:
-                    Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
-                pos["entry"] = new_entry
+            refresh_position_from_kalshi(asset, pos)
             Log(f"{asset} ⚡ stop-loss @ {fmt(cur)} (entry={fmt(pos['entry'])})", asset=asset)
             sold = False
             for i in range(1, 4):
