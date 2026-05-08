@@ -209,3 +209,6 @@
 2026-05-08 09:15:20 | BTC New session (KXBTC15M-26MAY080930-30)
 2026-05-08 09:15:21 | BTC WS re-subscribed to KXBTC15M-26MAY080930-30
 2026-05-08 09:15:21 | BTC WS subscribed: channel=orderbook_delta sid=34
+2026-05-08 10:17:10 | BTC New session (KXBTC15M-26MAY081030-30)
+2026-05-08 10:17:11 | BTC WS re-subscribed to KXBTC15M-26MAY081030-30
+2026-05-08 10:17:11 | BTC WS subscribed: channel=orderbook_delta sid=35
