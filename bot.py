@@ -994,12 +994,14 @@ def get_fill_summary(order_id: str, asset: str = "") -> Optional[dict]:
         Log(f"FILLS parse error: {e}", asset=asset)
         return None
 
-def buy_position(asset: str, market_ticker: str, side: str, price: float, retry: int = 1) -> bool:
+def buy_position(asset: str, market_ticker: str, side: str, price: float,
+                 retry: int = 1, client_order_id: str = "") -> bool:
     size = ASSET_ORDER_SIZE[asset]
     # last 2 retries: add extra 0.02 to break through thin order books
     extra = 0.02 if retry >= 3 else 0.0
     adj_price = min(price + extra, 0.98)
-    return place_kalshi_order("BUY", market_ticker, side, adj_price, size, asset=asset)
+    return place_kalshi_order("BUY", market_ticker, side, adj_price, size,
+                              client_order_id=client_order_id, asset=asset)
 
 def sell_position(asset: str, side: str, price: float) -> bool:
     pos = positions.get(asset)
@@ -1269,6 +1271,10 @@ def process_asset(asset: str):
     sig_info = f" conviction={sig.conviction:.2f} ss={sig.settlement_score:+.2f}" if sig else ""
     Log(f"{asset} {side} triggered @ {fmt(entry_price)}{ws_tag}{sig_info} — placing order", asset=asset)
     buy_confirmed = False
+    # Reuse one client_order_id across all retries so Kalshi rejects duplicates
+    # if our local position check ever races/misreads — defensive against the
+    # parsing-bug class of failures that caused 3× over-buying.
+    entry_client_order_id = str(uuid.uuid4())
 
     for i in range(1, 5):
         if i > 1 and has_existing_position(ticker, asset=asset):
@@ -1279,7 +1285,8 @@ def process_asset(asset: str):
             fresh = get_kalshi_market_snapshot(asset)
             if fresh:
                 entry_price = fresh["up"] if side == "UP" else fresh["down"]
-        if buy_position(asset, ticker, side, entry_price, retry=i):
+        if buy_position(asset, ticker, side, entry_price, retry=i,
+                        client_order_id=entry_client_order_id):
             Log(f"{asset} Position confirmed", asset=asset)
             buy_confirmed = True
             break
