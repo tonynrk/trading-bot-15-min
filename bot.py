@@ -16,6 +16,9 @@ import time
 import uuid
 from collections import deque as _deque
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+NY_TZ = ZoneInfo("America/New_York")  # auto-handles EDT (-04) ↔ EST (-05) DST switch
 from typing import Optional
 
 import requests
@@ -87,7 +90,7 @@ KALSHI_KEY_PASSPHRASE    = ""
 # Logging
 # =========================
 _LOG_FORMAT   = "%(asctime)s | %(message)s"
-_LOG_DATEFMT  = "%Y-%m-%d %H:%M:%S"
+_LOG_DATEFMT  = "%Y-%m-%d %H:%M:%S%z"
 _LOG_DIR      = os.path.dirname(os.path.abspath(__file__))
 
 # Root logger: stdout only
@@ -189,7 +192,7 @@ def load_persistent():
 def journal(event: str, asset: str, **fields):
     """Append a trade event as one JSON line. Never raises."""
     try:
-        rec = {"ts": time.time(), "iso": _now_utc().isoformat(), "event": event, "asset": asset, **fields}
+        rec = {"ts": time.time(), "iso": _now_ny().isoformat(), "event": event, "asset": asset, **fields}
         with open(JOURNAL_FILE, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec) + "\n")
     except Exception as e:
@@ -469,6 +472,9 @@ _http_session.headers.update({
 # =========================
 def _now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+def _now_ny() -> datetime:
+    return datetime.now(NY_TZ)
 
 def current_time_millis() -> int:
     return int(time.time() * 1000)
