@@ -66,7 +66,7 @@ except ImportError:
 # are imported from filter_logic.py — single source of truth shared with the
 # dashboard. Edit them there, not here.
 ASSETS                 = ["BTC"]
-ASSET_ORDER_SIZE       = {"BTC": 66, "ETH": 54}  # contracts per trade — sized for ~$2,111 bankroll (~3%/trade); must define every asset in ASSETS
+ASSET_ORDER_SIZE       = {"BTC": 90, "ETH": 74}  # contracts per trade — sized for ~$2,111 bankroll (~4%/trade); must define every asset in ASSETS
 
 # =========================
 # API / Order Config
