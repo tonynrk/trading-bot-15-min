@@ -363,3 +363,118 @@
 2026-05-08 14:15:21-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
 2026-05-08 14:15:22-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081430-30
 2026-05-08 14:15:22-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 14:26:26-0400 | BTC WS connected
+2026-05-08 14:26:26-0400 | BTC 🔄 Adopted untracked Kalshi position: UP size=45 entry=0.87 order_id=594986af-18e7-4e31-94b3-cebd80886b57
+2026-05-08 14:26:26-0400 | BTC WS subscribed to KXBTC15M-26MAY081430-30 (ticker + orderbook_delta)
+2026-05-08 14:26:26-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 14:26:26-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 14:30:00-0400 | BTC ⚠ market result unavailable, falling back to price-based check (cur=0.99)
+2026-05-08 14:30:00-0400 | BTC UP held to resolution ✓ win (+$5.85) — streak reset
+2026-05-08 14:30:22-0400 | BTC New session (KXBTC15M-26MAY081445-45)
+2026-05-08 14:30:23-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081445-45
+2026-05-08 14:30:23-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 14:41:01-0400 | BTC Existing position found, waiting for next session
+2026-05-08 14:44:23-0400 | BTC 🔄 Adopted untracked Kalshi position: DOWN size=55 entry=0.81 order_id=6bd43e20-c2f7-43f4-a161-1c516a185b4e
+2026-05-08 14:44:24-0400 | BTC WS connected
+2026-05-08 14:44:24-0400 | BTC WS subscribed to KXBTC15M-26MAY081445-45 (ticker + orderbook_delta)
+2026-05-08 14:44:24-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 14:44:24-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 14:45:01-0400 | BTC ⚠ market result unavailable, falling back to price-based check (cur=0.99)
+2026-05-08 14:45:01-0400 | BTC DOWN held to resolution ✓ win (+$10.45) — streak reset
+2026-05-08 14:45:24-0400 | BTC New session (KXBTC15M-26MAY081500-00)
+2026-05-08 14:45:24-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081500-00
+2026-05-08 14:45:25-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 14:51:12-0400 | BTC UP triggered @ 0.78 [WS] conviction=0.49 ss=+0.34 — placing order
+2026-05-08 14:51:12-0400 | ORDER payload: {"ticker": "KXBTC15M-26MAY081500-00", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 80, "client_order_id": "91c2a395-fc53-4a4f-89fa-fe889b44c1e2"}
+2026-05-08 14:51:12-0400 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"91c2a395-fc53-4a4f-89fa-fe889b44c1e2","created_time":"2026-05-08T18:51:12.856653Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T18:51:12.856653Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 14:51:14-0400 | BTC Position confirmed
+2026-05-08 14:51:15-0400 | BTC Holding UP @ 0.78 (fill) — stop-loss @ 0.5
+2026-05-08 14:54:44-0400 | BTC ⚡ stop-loss @ 0.46 (entry=0.78)
+2026-05-08 14:54:44-0400 | ORDER payload: {"ticker": "KXBTC15M-26MAY081500-00", "action": "sell", "side": "yes", "count": 22, "type": "limit", "yes_price": 1, "client_order_id": "59df74cf-f590-42e2-b02e-2c52781dddd3", "reduce_only": true, "time_in_force": "immediate_or_cancel"}
+2026-05-08 14:54:44-0400 | ORDER response: HTTP 201 | {"order":{"action":"sell","client_order_id":"59df74cf-f590-42e2-b02e-2c52781dddd3","created_time":"2026-05-08T18:54:44.368099Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T18:54:44.368099Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no
+2026-05-08 14:54:44-0400 | BTC Position closed (stop-loss)
+2026-05-08 14:54:44-0400 | BTC Stop-loss PnL: $-7.04 | Consecutive losses: 1/2
+2026-05-08 15:00:25-0400 | BTC New session (KXBTC15M-26MAY081515-15)
+2026-05-08 15:00:26-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081515-15
+2026-05-08 15:00:26-0400 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-08 15:02:18-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081515-15) — skipping until next clean session
+2026-05-08 15:02:18-0400 | BTC WS connected
+2026-05-08 15:02:18-0400 | BTC WS subscribed to KXBTC15M-26MAY081515-15 (ticker + orderbook_delta)
+2026-05-08 15:02:19-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 15:02:19-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 15:03:29-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081515-15) — skipping until next clean session
+2026-05-08 15:03:29-0400 | BTC WS connected
+2026-05-08 15:03:29-0400 | BTC WS subscribed to KXBTC15M-26MAY081515-15 (ticker + orderbook_delta)
+2026-05-08 15:03:29-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 15:03:29-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 15:06:48-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081515-15) — skipping until next clean session
+2026-05-08 15:06:49-0400 | BTC WS connected
+2026-05-08 15:06:49-0400 | BTC WS subscribed to KXBTC15M-26MAY081515-15 (ticker + orderbook_delta)
+2026-05-08 15:06:49-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 15:06:49-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 15:13:42-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081515-15) — skipping until next clean session
+2026-05-08 15:13:42-0400 | BTC WS connected
+2026-05-08 15:13:42-0400 | BTC WS subscribed to KXBTC15M-26MAY081515-15 (ticker + orderbook_delta)
+2026-05-08 15:13:42-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 15:13:42-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 15:15:26-0400 | BTC New session (KXBTC15M-26MAY081530-30)
+2026-05-08 15:15:27-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081530-30
+2026-05-08 15:15:27-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 15:30:28-0400 | BTC New session (KXBTC15M-26MAY081545-45)
+2026-05-08 15:30:28-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081545-45
+2026-05-08 15:30:28-0400 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-08 15:39:20-0400 | BTC UP triggered @ 0.87 [WS] conviction=0.51 ss=+0.40 — placing order
+2026-05-08 15:39:20-0400 | ORDER payload: {"ticker": "KXBTC15M-26MAY081545-45", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 89, "client_order_id": "d169dadb-6469-4730-a685-e7119dc9a94a"}
+2026-05-08 15:39:20-0400 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"d169dadb-6469-4730-a685-e7119dc9a94a","created_time":"2026-05-08T19:39:20.613931Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T19:39:20.613931Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 15:39:22-0400 | BTC Position confirmed
+2026-05-08 15:39:22-0400 | BTC Holding UP @ 0.87 (fill) — stop-loss @ 0.5
+2026-05-08 15:45:01-0400 | BTC ⚠ market result unavailable, falling back to price-based check (cur=0.50)
+2026-05-08 15:45:01-0400 | BTC UP held to resolution ✗ loss ($-19.14) — consecutive=2/2
+2026-05-08 15:45:29-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 15:45:30-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081600-00
+2026-05-08 15:45:30-0400 | BTC WS subscribed: channel=orderbook_delta sid=5
+2026-05-08 16:00:30-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 16:00:31-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081615-15
+2026-05-08 16:00:31-0400 | BTC WS subscribed: channel=orderbook_delta sid=6
+2026-05-08 16:15:40-0400 | BTC WS connected
+2026-05-08 16:15:40-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081630-30) — skipping until next clean session
+2026-05-08 16:15:40-0400 | BTC WS subscribed to KXBTC15M-26MAY081630-30 (ticker + orderbook_delta)
+2026-05-08 16:15:40-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 16:15:40-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 16:23:28-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081630-30) — skipping until next clean session
+2026-05-08 16:23:28-0400 | BTC WS connected
+2026-05-08 16:23:29-0400 | BTC WS subscribed to KXBTC15M-26MAY081630-30 (ticker + orderbook_delta)
+2026-05-08 16:23:29-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 16:23:29-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 16:30:03-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 16:30:04-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081645-45
+2026-05-08 16:30:04-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 16:45:04-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 16:45:05-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081700-00
+2026-05-08 16:45:05-0400 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-08 17:00:06-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 17:00:06-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081715-15
+2026-05-08 17:00:06-0400 | BTC WS subscribed: channel=orderbook_delta sid=5
+2026-05-08 17:15:07-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 17:15:08-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081730-30
+2026-05-08 17:15:08-0400 | BTC WS subscribed: channel=orderbook_delta sid=6
+2026-05-08 17:30:08-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 17:30:08-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081745-45
+2026-05-08 17:30:08-0400 | BTC WS subscribed: channel=orderbook_delta sid=7
+2026-05-08 17:45:09-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 17:45:10-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081800-00
+2026-05-08 17:45:10-0400 | BTC WS subscribed: channel=orderbook_delta sid=8
+2026-05-08 18:00:11-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 18:00:12-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081815-15
+2026-05-08 18:00:12-0400 | BTC WS subscribed: channel=orderbook_delta sid=9
+2026-05-08 18:02:19-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY081815-15) — skipping until next clean session
+2026-05-08 18:02:19-0400 | BTC WS connected
+2026-05-08 18:02:19-0400 | BTC WS subscribed to KXBTC15M-26MAY081815-15 (ticker + orderbook_delta)
+2026-05-08 18:02:19-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 18:02:19-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 18:15:13-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 18:15:13-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081830-30
+2026-05-08 18:15:13-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 18:30:14-0400 | BTC ⏸ Paused — 2 consecutive losses. Sitting out this session.
+2026-05-08 18:30:14-0400 | BTC WS re-subscribed to KXBTC15M-26MAY081845-45
+2026-05-08 18:30:14-0400 | BTC WS subscribed: channel=orderbook_delta sid=4
