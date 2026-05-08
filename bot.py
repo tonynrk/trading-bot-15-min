@@ -808,6 +808,34 @@ def has_existing_position(market_ticker: str, asset: str = "") -> bool:
     return bool(cnt and cnt > 0)
 
 
+_balance_cache: dict = {"balance": None, "portfolio_value": None, "ts": 0.0}
+
+def get_kalshi_balance(force: bool = False) -> Optional[dict]:
+    """Fetch /portfolio/balance. Caches for 30s to avoid hammering the endpoint
+    on every loop tick. Returns dict with balance + portfolio_value in DOLLARS
+    (Kalshi returns cents; we convert here)."""
+    now = time.time()
+    if not force and _balance_cache["ts"] and (now - _balance_cache["ts"] < 30.0):
+        return {"balance": _balance_cache["balance"],
+                "portfolio_value": _balance_cache["portfolio_value"]}
+    res = kalshi_signed_request("GET", "/trade-api/v2/portfolio/balance")
+    if not res or res["status"] != 200:
+        return None
+    try:
+        d = json.loads(res["body"])
+        bal = d.get("balance")
+        pv  = d.get("portfolio_value")
+        # Kalshi returns cents (int) — convert to dollars
+        _balance_cache["balance"] = (bal / 100.0) if isinstance(bal, (int, float)) else None
+        _balance_cache["portfolio_value"] = (pv / 100.0) if isinstance(pv, (int, float)) else None
+        _balance_cache["ts"] = now
+        return {"balance": _balance_cache["balance"],
+                "portfolio_value": _balance_cache["portfolio_value"]}
+    except Exception as e:
+        Log(f"BALANCE parse error: {e}")
+        return None
+
+
 def get_market_result(market_ticker: str, asset: str = "") -> Optional[str]:
     """Return Kalshi's settled result for the given market: 'yes', 'no', or None
     if the market hasn't settled / API call fails. Used at quarter-rolled
@@ -1454,6 +1482,7 @@ def main():
 
         # Dump shared state for dashboard
         try:
+            balance = get_kalshi_balance()  # cached, only hits API every 30s
             state = {
                 "ts": time.time(),
                 "assets": ASSETS,
@@ -1464,6 +1493,7 @@ def main():
                 "phases": asset_phase,
                 "consecutive_losses": consecutive_losses,
                 "max_consecutive_losses": MAX_CONSECUTIVE_LOSSES,
+                "balance": balance,   # {balance, portfolio_value} in dollars, or None
                 "config": {
                     "ENTRY": ENTRY, "EXIT": EXIT,
                     "TIME_WINDOW": TIME_WINDOW,

@@ -251,6 +251,7 @@ def build_state(asset: str) -> dict:
         "max_losses": bot_state.get("max_consecutive_losses", 2),
         "bot_age": round(time.time() - bot_state.get("ts", 0), 1) if bot_state.get("ts") else None,
         "config": bot_state.get("config", {}),
+        "balance": bot_state.get("balance"),
     }
 
 
@@ -367,6 +368,14 @@ function render(data) {
         <div class="row"><span>Entry conviction</span><span>${fmt(s.position.conviction,2)}</span></div>
         <div class="row"><span>Entry edge</span><span>${s.position.edge!=null?fmt(s.position.edge,3):'—'}</span></div>
       </div>` : ''}
+      <div class="card" style="grid-column:1/-1">
+        <h2>💰 Account</h2>
+        ${s.balance ? `
+        <div class="row"><span>Cash balance</span><span style="font-size:18px;font-weight:600">$${fmt(s.balance.balance,2)}</span></div>
+        <div class="row"><span>Portfolio value (open)</span><span>$${fmt(s.balance.portfolio_value,2)}</span></div>
+        <div class="row"><span>Total equity</span><span style="font-weight:600">$${fmt((s.balance.balance||0)+(s.balance.portfolio_value||0),2)}</span></div>
+        ` : `<div class="row" style="color:#8b949e">balance unavailable (bot must be running with creds)</div>`}
+      </div>
       <div class="card" style="grid-column:1/-1">
         <h2>P&L / Trade Stats</h2>
         <div class="row"><span>Total P&L (all)</span><span style="color:${color(s.stats?.total_pnl||0)};font-size:18px;font-weight:600">$${fmt(s.stats?.total_pnl,2)}</span></div>
