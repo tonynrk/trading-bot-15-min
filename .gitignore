@@ -10,9 +10,6 @@ bot_persistent.json
 *.pid
 *.log
 
-# Trade history (local only)
-trades.jsonl
-
 # Python
 __pycache__/
 *.pyc
