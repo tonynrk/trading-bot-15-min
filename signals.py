@@ -37,7 +37,9 @@ CANDLE_MINUTES       = 15
 POLL_INTERVAL_S      = 1.0
 VELOCITY_WINDOW_S    = 30
 NOISE_RANGE_MIN_PCT  = 0.0008   # below this → too tight (no movement)
-CONVICTION_THRESHOLD = 0.45   # raised from 0.30 — only emit UP/DOWN when signal is strong
+# Signal directionality threshold — keep aligned with filter_logic.MIN_CONVICTION
+# so bot's filter and signals.py agree on what counts as a UP/DOWN signal.
+from filter_logic import MIN_CONVICTION as CONVICTION_THRESHOLD
 
 # Free price sources per asset
 ASSET_SOURCES = {
