@@ -1005,30 +1005,31 @@ def process_asset(asset: str):
             },
         }
 
-    # Evaluate filters (shared logic — dashboard reads this from state.json)
+    # Compute fair_prob + edge once — reused for both filter eval and journal.
+    edge_info = None
     fair_p = None
     if SIGNALS_AVAILABLE and snapshot.get("strike"):
         btc_p = get_live_price(asset)
         if btc_p:
-            e = d2_edge(btc_p, snapshot["strike"], up, mins_left,
-                        ticks=get_ticks(asset), asset=asset, min_edge=0.03)
-            fair_p = e["fair_prob"]
-            # Periodic log of pricing inputs — once per minute via log_once key
-            # to avoid flooding while still capturing values for post-mortem.
+            edge_info = d2_edge(btc_p, snapshot["strike"], up, mins_left,
+                                ticks=get_ticks(asset), asset=asset, min_edge=MIN_EDGE)
+            fair_p = edge_info["fair_prob"]
+            # Periodic log of pricing inputs (once per minute) for post-mortem.
             side_lbl = "UP" if fair_p >= 0.5 else "DOWN"
             disp_p   = fair_p if fair_p >= 0.5 else 1 - fair_p
             log_once(asset, f"PRICING_{int(time.time() // 60)}",
                 f"{asset} pricing{ws_tag}: BTC=${btc_p:,.2f} strike=${snapshot['strike']:,.2f} "
-                f"mins={mins_left:.2f} vol={e['annualized_vol']*100:.1f}% "
-                f"d2={e['d2']:+.2f} fair={disp_p*100:.1f}%{side_lbl} "
-                f"market={up:.2f}/{down:.2f} edge_up={e['edge_up']:+.3f}")
-    _latest_filters[asset] = evaluate_filters(
+                f"mins={mins_left:.2f} vol={edge_info['annualized_vol']*100:.1f}% "
+                f"d2={edge_info['d2']:+.2f} fair={disp_p*100:.1f}%{side_lbl} "
+                f"market={up:.2f}/{down:.2f} edge_up={edge_info['edge_up']:+.3f}")
+    filters = evaluate_filters(
         up=up, down=down, mins_left=mins_left,
         signal=(sig_live.signal if sig_live else None),
         conviction=(sig_live.conviction if sig_live else None),
         settlement_score=(sig_live.settlement_score if sig_live else None),
         fair_prob=fair_p,
     )
+    _latest_filters[asset] = filters
 
     # ---- Cold-start guard: skip session that was already in-progress at boot ----
     if asset not in _boot_quarter:
@@ -1148,70 +1149,19 @@ def process_asset(asset: str):
              f"{ws_tag} | Signal: {sig.signal if sig else 'N/A'}"
              + (f" conviction={sig.conviction:.2f}" if sig else ""))
 
-    # ---- Entry condition ----
-    side        = ""
-    entry_price = 0.0
-
-    if up >= ENTRY and up >= down:
-        side, entry_price = "UP", up
-    elif down >= ENTRY and down > up:
-        side, entry_price = "DOWN", down
-
-    if not side:
+    # ---- Entry gate: all filters must pass (price/window/signal/conviction/ss/edge) ----
+    if not filters["all_pass"]:
+        first_fail = next(c for c in filters["checks"] if not c["pass"])
+        log_once(asset, f"FILTER_{first_fail['name']}",
+                 f"{asset} ⚠ filter failed: {first_fail['name']} (got {first_fail['value']})")
         return
+    side        = filters["side"]
+    entry_price = filters["market_price"]
 
-    # Signal confirmation required for every entry (no bypass)
-    if sig:
-        if sig.signal != side:
-            log_once(asset, f"SIG_DISAGREES_{side}",
-                     f"{asset} ⚠ SIGNAL {sig.signal} — ss={sig.settlement_score:+.2f}")
-            return
-        # settlement_score must confirm direction
-        ss = sig.settlement_score
-        ss_ok = (ss >= MIN_SETTLEMENT_SCORE) if side == "UP" else (ss <= -MIN_SETTLEMENT_SCORE)
-        if not ss_ok:
-            log_once(asset, f"SS_WEAK_{side}",
-                     f"{asset} ⚠ Settlement score too weak (ss={ss:+.2f}) for {side}")
-            return
-        if sig.conviction < MIN_CONVICTION:
-            log_once(asset, f"CONV_WEAK_{side}",
-                     f"{asset} ⚠ Conviction too weak ({sig.conviction:.2f} < {MIN_CONVICTION}) for {side}")
-            return
-        log_once_keys.pop(f"{asset}|SIG_DISAGREES_{side}", None)
-        log_once_keys.pop(f"{asset}|SS_WEAK_{side}", None)
-        log_once_keys.pop(f"{asset}|CONV_WEAK_{side}", None)
-        log_once(asset, f"SIG_OK_{side}",
-                 f"{asset} ✓ Signal {sig.signal} conviction={sig.conviction:.2f} ss={sig.settlement_score:+.2f}")
-
+    # Cap on extremely deep-money entries (R/R floor — not in evaluate_filters)
     if entry_price > 0.98:
         log_once(asset, "PRICE_HIGH", f"{asset} Price too high ({fmt(entry_price)}), skipping")
         return
-
-    # ---- d2 Edge filter: only enter when fair value > market price ----
-    # NOTE: d2_edge expects the YES (UP) price as contract_price — always pass `up`
-    edge_info = None
-    if SIGNALS_AVAILABLE and snapshot.get("strike"):
-        btc_p = get_live_price(asset)
-        if btc_p:
-            edge_info = d2_edge(
-                btc_price=btc_p,
-                strike=snapshot["strike"],
-                contract_price=up,
-                mins_left=mins_left,
-                ticks=get_ticks(asset),
-                asset=asset,
-                min_edge=MIN_EDGE,
-            )
-            has_edge = edge_info["has_edge_up"] if side == "UP" else edge_info["has_edge_down"]
-            edge_val = edge_info["edge_up"] if side == "UP" else edge_info["edge_down"]
-            if not has_edge:
-                log_once(asset, f"NO_EDGE_{side}",
-                         f"{asset} ⚠ No edge for {side} — fair={edge_info['fair_prob']:.2f} "
-                         f"market={fmt(entry_price)} edge={edge_val:+.3f} (need ≥ {MIN_EDGE})")
-                return
-            log_once_keys.pop(f"{asset}|NO_EDGE_{side}", None)
-            Log(f"{asset} ✓ Edge OK {side}: fair={edge_info['fair_prob']:.2f} "
-                f"market={fmt(entry_price)} edge={edge_val:+.3f}", asset=asset)
 
     if not can_place_order_now(asset):
         log_once(asset, "NO_CREDS", f"{asset} Missing credentials")
