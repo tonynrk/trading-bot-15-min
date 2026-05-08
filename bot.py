@@ -65,7 +65,6 @@ except ImportError:
 # Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES)
 # are imported from filter_logic.py — single source of truth shared with the
 # dashboard. Edit them there, not here.
-USE_EDGE_FILTER        = True          # enforce d2 fair-value edge filter before entry
 ASSETS                 = ["BTC"]
 ASSET_ORDER_SIZE       = {"BTC": 22, "ETH": 18}  # contracts per trade — must define every asset in ASSETS
 
@@ -164,7 +163,7 @@ def write_state(state: dict):
         pass
 
 def save_persistent():
-    """Save state that must survive restart: positions, loss streak, phase."""
+    """Save state that must survive restart: positions, loss streak, phase, current quarter."""
     try:
         data = {
             "positions": positions,
@@ -1199,7 +1198,7 @@ def process_asset(asset: str):
     # ---- d2 Edge filter: only enter when fair value > market price ----
     # NOTE: d2_edge expects the YES (UP) price as contract_price — always pass `up`
     edge_info = None
-    if USE_EDGE_FILTER and SIGNALS_AVAILABLE and snapshot.get("strike"):
+    if SIGNALS_AVAILABLE and snapshot.get("strike"):
         btc_p = get_live_price(asset)
         if btc_p:
             edge_info = d2_edge(
@@ -1367,7 +1366,6 @@ def main():
                     "MIN_SETTLEMENT_SCORE": MIN_SETTLEMENT_SCORE,
                     "MIN_CONVICTION": MIN_CONVICTION,
                     "MIN_EDGE": MIN_EDGE,
-                    "USE_EDGE_FILTER": USE_EDGE_FILTER,
                     "ASSET_ORDER_SIZE": ASSET_ORDER_SIZE,
                 },
             }
