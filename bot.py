@@ -480,7 +480,9 @@ def _now_utc() -> datetime:
     return datetime.now(timezone.utc)
 
 def _now_ny() -> datetime:
-    return datetime.now(NY_TZ)
+    # Machine clock is already NY wall time; attach NY tzinfo to naive local now
+    # (avoids double-conversion if OS tz config is non-standard, e.g. Windows TZ=UTC w/ NY clock)
+    return datetime.now().replace(tzinfo=NY_TZ)
 
 def current_time_millis() -> int:
     return int(time.time() * 1000)
