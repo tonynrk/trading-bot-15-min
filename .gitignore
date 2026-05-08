@@ -9,6 +9,7 @@ bot_state.json
 bot_persistent.json
 *.pid
 *.log
+!bot_btc.log
 
 # Python
 __pycache__/
