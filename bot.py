@@ -776,6 +776,82 @@ def has_existing_position(market_ticker: str, asset: str = "") -> bool:
     cnt = get_position_count(market_ticker, asset=asset)
     return bool(cnt and cnt > 0)
 
+
+def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
+    """Reconstruct a pos dict from Kalshi for a position that exists on the
+    exchange but isn't tracked locally (e.g. persistent state lost, manual
+    buy outside the bot). Queries /portfolio/positions for side+count and
+    /portfolio/fills?ticker=... for weighted avg entry price + most recent
+    order_id (which is also seeded into _last_buy_order_id).
+
+    Returns None if no position on Kalshi or query fails."""
+    if not market_ticker:
+        return None
+    res = kalshi_signed_request("GET", f"/trade-api/v2/portfolio/positions?ticker={market_ticker}")
+    if not res or res["status"] != 200:
+        return None
+    try:
+        data = json.loads(res["body"])
+        for p in data.get("market_positions", []):
+            if p.get("ticker") and p["ticker"] != market_ticker:
+                continue
+            qty_signed = p.get("position")
+            if qty_signed is None and "position_fp" in p:
+                qty_signed = float(p["position_fp"]) / 100.0
+            if qty_signed is None or float(qty_signed) == 0:
+                continue
+            qty = int(abs(round(float(qty_signed))))
+            side = "UP" if float(qty_signed) > 0 else "DOWN"
+
+            # Pull fills for this ticker to compute avg entry + grab order_id
+            entry_price = None
+            order_id = ""
+            f_res = kalshi_signed_request(
+                "GET", f"/trade-api/v2/portfolio/fills?ticker={market_ticker}&limit=200"
+            )
+            if f_res and f_res["status"] == 200:
+                try:
+                    f_data = json.loads(f_res["body"])
+                    fills = f_data.get("fills", [])
+                    target = "yes" if side == "UP" else "no"
+                    total_cost = 0.0
+                    total_count = 0.0
+                    for f in fills:
+                        if (f.get("outcome_side") or f.get("side")) != target:
+                            continue
+                        cnt = float(f.get("count_fp", f.get("count", 0)))
+                        if "count_fp" in f:
+                            cnt /= 100.0
+                        pf = f.get("yes_price_dollars") if side == "UP" else f.get("no_price_dollars")
+                        if pf is None:
+                            p_cents = f.get("yes_price") if side == "UP" else f.get("no_price")
+                            pf = (p_cents / 100.0) if p_cents is not None else 0.0
+                        total_cost += pf * cnt
+                        total_count += cnt
+                        if f.get("order_id"):
+                            order_id = f["order_id"]   # latest in iteration
+                    if total_count > 0:
+                        entry_price = total_cost / total_count
+                except Exception as e:
+                    Log(f"ADOPT fills parse error: {e}", asset=asset)
+
+            if order_id:
+                _last_buy_order_id[asset] = order_id
+            Log(f"{asset} 🔄 Adopted untracked Kalshi position: {side} size={qty} "
+                f"entry={fmt(entry_price) if entry_price else 'unknown'} "
+                f"order_id={order_id or 'unknown'}", asset=asset)
+            return {
+                "side": side,
+                "entry": entry_price if entry_price is not None else 0.5,
+                "ticker": market_ticker,
+                "quarter_index": current_quarter_index(),
+                "size": qty,
+            }
+        return None
+    except Exception as e:
+        Log(f"ADOPT parse error: {e} | body: {res['body'][:200]}", asset=asset)
+        return None
+
 # =========================
 # Order Placement
 # =========================
@@ -1034,10 +1110,16 @@ def process_asset(asset: str):
     _latest_filters[asset] = filters
 
     # ---- Cold-start guard: skip session that was already in-progress at boot ----
+    # Adopt any untracked Kalshi position first so we can monitor it through resolution.
     if asset not in _boot_quarter:
         _boot_quarter[asset] = quarter
-        if not positions.get(asset):
-            Log(f"{asset} 🟡 Boot mid-session ({ticker}) — skipping until next clean session", asset=asset)
+        if not positions.get(asset) and ticker:
+            adopted = adopt_kalshi_position(ticker, asset)
+            if adopted:
+                positions[asset] = adopted
+                asset_phase[asset] = "IN_POSITION"
+            else:
+                Log(f"{asset} 🟡 Boot mid-session ({ticker}) — skipping until next clean session", asset=asset)
     if _boot_quarter.get(asset) == quarter and not positions.get(asset):
         log_once(asset, "BOOT_SKIP", f"{asset} ⏭ Skipping boot session — wait for next start")
         _ws_ticker[asset] = ticker
