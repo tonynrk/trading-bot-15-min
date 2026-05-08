@@ -1,0 +1,28 @@
+# Credentials — NEVER commit
+reactions/
+*.pem
+*.key
+apikey.json
+
+# Runtime state
+bot_state.json
+bot_persistent.json
+*.pid
+*.log
+
+# Trade history (local only)
+trades.jsonl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+env/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
