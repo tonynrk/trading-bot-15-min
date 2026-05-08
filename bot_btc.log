@@ -1,0 +1,211 @@
+2026-05-08 00:39:11 | BTC WS connected
+2026-05-08 00:39:11 | BTC WS subscribed to KXBTC15M-26MAY080045-45 (ticker + orderbook_delta)
+2026-05-08 00:39:11 | BTC DOWN triggered @ 0.93 [REST] — placing order
+2026-05-08 00:39:11 | ORDER payload: {"ticker": "KXBTC15M-26MAY080045-45", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 95, "client_order_id": "3d472bd9-8dec-480a-aa46-d93b66f682e5"}
+2026-05-08 00:39:12 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 00:39:12 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"3d472bd9-8dec-480a-aa46-d93b66f682e5","created_time":"2026-05-08T04:39:11.839206Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T04:39:11.839206Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 00:39:12 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 00:39:14 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.587000","event_ticker":"KXBTC15M-26MAY080045","fees_paid_dollars":"0.093000","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.587000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.093000","last_upd
+2026-05-08 00:39:14 | BTC Position confirmed
+2026-05-08 00:39:14 | BTC Holding DOWN @ 0.93 — stop-loss @ 0.5
+2026-05-08 00:45:00 | BTC DOWN held to resolution ✓ win (+$1.47) — streak reset
+2026-05-08 00:45:05 | BTC New session (KXBTC15M-26MAY080100-00)
+2026-05-08 00:45:05 | BTC WS re-subscribed to KXBTC15M-26MAY080100-00
+2026-05-08 00:45:05 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 01:00:06 | BTC New session (KXBTC15M-26MAY080115-15)
+2026-05-08 01:00:06 | BTC WS re-subscribed to KXBTC15M-26MAY080115-15
+2026-05-08 01:00:07 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-08 01:15:08 | BTC New session (KXBTC15M-26MAY080130-30)
+2026-05-08 01:15:08 | BTC WS re-subscribed to KXBTC15M-26MAY080130-30
+2026-05-08 01:15:08 | BTC WS subscribed: channel=orderbook_delta sid=5
+2026-05-08 01:20:03 | BTC WS connected
+2026-05-08 01:20:04 | BTC WS subscribed to KXBTC15M-26MAY080130-30 (ticker + orderbook_delta)
+2026-05-08 01:20:04 | BTC WS subscribed: channel=ticker sid=1
+2026-05-08 01:20:04 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-08 01:30:08 | BTC New session (KXBTC15M-26MAY080145-45)
+2026-05-08 01:30:09 | BTC WS re-subscribed to KXBTC15M-26MAY080145-45
+2026-05-08 01:30:09 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-08 01:45:10 | BTC New session (KXBTC15M-26MAY080200-00)
+2026-05-08 01:45:11 | BTC WS re-subscribed to KXBTC15M-26MAY080200-00
+2026-05-08 01:45:11 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-08 02:00:11 | BTC New session (KXBTC15M-26MAY080215-15)
+2026-05-08 02:00:11 | BTC WS re-subscribed to KXBTC15M-26MAY080215-15
+2026-05-08 02:00:12 | BTC WS subscribed: channel=orderbook_delta sid=5
+2026-05-08 02:15:12 | BTC New session (KXBTC15M-26MAY080230-30)
+2026-05-08 02:15:13 | BTC WS re-subscribed to KXBTC15M-26MAY080230-30
+2026-05-08 02:15:13 | BTC WS subscribed: channel=orderbook_delta sid=6
+2026-05-08 02:30:14 | BTC New session (KXBTC15M-26MAY080245-45)
+2026-05-08 02:30:15 | BTC WS re-subscribed to KXBTC15M-26MAY080245-45
+2026-05-08 02:30:15 | BTC WS subscribed: channel=orderbook_delta sid=7
+2026-05-08 02:45:15 | BTC New session (KXBTC15M-26MAY080300-00)
+2026-05-08 02:45:15 | BTC WS re-subscribed to KXBTC15M-26MAY080300-00
+2026-05-08 02:45:15 | BTC WS subscribed: channel=orderbook_delta sid=8
+2026-05-08 02:53:56 | BTC ✓ Edge OK DOWN: fair=0.05 market=0.92 edge=+0.044
+2026-05-08 02:53:56 | BTC DOWN triggered @ 0.92 [WS] conviction=0.57 ss=-0.44 — placing order
+2026-05-08 02:53:56 | ORDER payload: {"ticker": "KXBTC15M-26MAY080300-00", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 94, "client_order_id": "e1732511-31e9-445c-b5ed-e06b0998e147"}
+2026-05-08 02:53:56 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"e1732511-31e9-445c-b5ed-e06b0998e147","created_time":"2026-05-08T06:53:56.355268Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T06:53:56.355268Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 02:53:58 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.347200","event_ticker":"KXBTC15M-26MAY080300","fees_paid_dollars":"0.112800","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.347200","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.112800","last_upd
+2026-05-08 02:53:58 | BTC Position confirmed
+2026-05-08 02:53:58 | BTC Holding DOWN @ 0.92 — stop-loss @ 0.5
+2026-05-08 03:00:01 | BTC DOWN held to resolution ✓ win (+$1.76) — streak reset
+2026-05-08 03:00:16 | BTC New session (KXBTC15M-26MAY080315-15)
+2026-05-08 03:00:16 | BTC WS re-subscribed to KXBTC15M-26MAY080315-15
+2026-05-08 03:00:16 | BTC WS subscribed: channel=orderbook_delta sid=9
+2026-05-08 03:05:41 | BTC ✓ Edge OK DOWN: fair=0.01 market=0.90 edge=+0.104
+2026-05-08 03:05:41 | BTC DOWN triggered @ 0.90 [WS] conviction=0.59 ss=-0.44 — placing order
+2026-05-08 03:05:41 | ORDER payload: {"ticker": "KXBTC15M-26MAY080315-15", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 92, "client_order_id": "17dd37c8-1408-4c4b-83c1-429d10055b86"}
+2026-05-08 03:05:41 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"17dd37c8-1408-4c4b-83c1-429d10055b86","created_time":"2026-05-08T07:05:41.288827Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T07:05:41.288827Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 03:05:43 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"19.872000","event_ticker":"KXBTC15M-26MAY080315","fees_paid_dollars":"0.138000","realized_pnl_dollars":"0.000000","total_cost_dollars":"19.872000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.138000","last_upd
+2026-05-08 03:05:43 | BTC Position confirmed
+2026-05-08 03:05:43 | BTC Holding DOWN @ 0.90 — stop-loss @ 0.5
+2026-05-08 03:15:00 | BTC DOWN held to resolution ✓ win (+$2.2) — streak reset
+2026-05-08 03:15:17 | BTC New session (KXBTC15M-26MAY080330-30)
+2026-05-08 03:15:17 | BTC WS re-subscribed to KXBTC15M-26MAY080330-30
+2026-05-08 03:15:17 | BTC WS subscribed: channel=orderbook_delta sid=10
+2026-05-08 03:26:43 | BTC ✓ Edge OK DOWN: fair=0.00 market=0.97 edge=+0.040
+2026-05-08 03:26:43 | BTC DOWN triggered @ 0.97 [WS] conviction=0.57 ss=-0.72 — placing order
+2026-05-08 03:26:43 | ORDER payload: {"ticker": "KXBTC15M-26MAY080330-30", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 98, "client_order_id": "b3867b01-644e-4b2f-bf49-03cc63cce74e"}
+2026-05-08 03:26:43 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"b3867b01-644e-4b2f-bf49-03cc63cce74e","created_time":"2026-05-08T07:26:43.544258Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T07:26:43.544258Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 03:26:45 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"21.296000","event_ticker":"KXBTC15M-26MAY080330","fees_paid_dollars":"0.054000","realized_pnl_dollars":"0.000000","total_cost_dollars":"21.296000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.054000","last_upd
+2026-05-08 03:26:45 | BTC Position confirmed
+2026-05-08 03:26:45 | BTC Holding DOWN @ 0.97 — stop-loss @ 0.5
+2026-05-08 03:30:00 | BTC DOWN held to resolution ✓ win (+$0.66) — streak reset
+2026-05-08 03:30:18 | BTC New session (KXBTC15M-26MAY080345-45)
+2026-05-08 03:30:19 | BTC WS re-subscribed to KXBTC15M-26MAY080345-45
+2026-05-08 03:30:19 | BTC WS subscribed: channel=orderbook_delta sid=11
+2026-05-08 03:45:20 | BTC New session (KXBTC15M-26MAY080400-00)
+2026-05-08 03:45:21 | BTC WS re-subscribed to KXBTC15M-26MAY080400-00
+2026-05-08 03:45:21 | BTC WS subscribed: channel=orderbook_delta sid=12
+2026-05-08 03:50:00 | BTC ✓ Edge OK UP: fair=0.96 market=0.91 edge=+0.055
+2026-05-08 03:50:00 | BTC UP triggered @ 0.91 [WS] conviction=0.58 ss=+0.46 — placing order
+2026-05-08 03:50:00 | ORDER payload: {"ticker": "KXBTC15M-26MAY080400-00", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 93, "client_order_id": "e6eae954-f4b5-4b6a-aa81-539abe7d99ff"}
+2026-05-08 03:50:00 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"e6eae954-f4b5-4b6a-aa81-539abe7d99ff","created_time":"2026-05-08T07:50:00.248257Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T07:50:00.248257Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 03:50:02 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.296000","event_ticker":"KXBTC15M-26MAY080400","fees_paid_dollars":"0.114000","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.296000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.114000","last_upd
+2026-05-08 03:50:02 | BTC Position confirmed
+2026-05-08 03:50:02 | BTC Holding UP @ 0.91 — stop-loss @ 0.5
+2026-05-08 04:00:00 | BTC UP held to resolution ✓ win (+$1.98) — streak reset
+2026-05-08 04:00:21 | BTC New session (KXBTC15M-26MAY080415-15)
+2026-05-08 04:00:21 | BTC WS re-subscribed to KXBTC15M-26MAY080415-15
+2026-05-08 04:00:21 | BTC WS subscribed: channel=orderbook_delta sid=13
+2026-05-08 04:15:22 | BTC New session (KXBTC15M-26MAY080430-30)
+2026-05-08 04:15:23 | BTC WS re-subscribed to KXBTC15M-26MAY080430-30
+2026-05-08 04:15:23 | BTC WS subscribed: channel=orderbook_delta sid=14
+2026-05-08 04:30:23 | BTC New session (KXBTC15M-26MAY080445-45)
+2026-05-08 04:30:24 | BTC WS re-subscribed to KXBTC15M-26MAY080445-45
+2026-05-08 04:30:24 | BTC WS subscribed: channel=orderbook_delta sid=15
+2026-05-08 04:39:59 | BTC ✓ Edge OK UP: fair=1.00 market=0.96 edge=+0.036
+2026-05-08 04:39:59 | BTC UP triggered @ 0.96 [WS] conviction=0.55 ss=+0.57 — placing order
+2026-05-08 04:39:59 | ORDER payload: {"ticker": "KXBTC15M-26MAY080445-45", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 98, "client_order_id": "d37f3654-ab90-40cd-9180-9ef39ae75c6b"}
+2026-05-08 04:39:59 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"d37f3654-ab90-40cd-9180-9ef39ae75c6b","created_time":"2026-05-08T08:39:59.396738Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T08:39:59.396738Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 04:40:01 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"21.208000","event_ticker":"KXBTC15M-26MAY080445","fees_paid_dollars":"0.062000","realized_pnl_dollars":"0.000000","total_cost_dollars":"21.208000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.062000","last_upd
+2026-05-08 04:40:01 | BTC Position confirmed
+2026-05-08 04:40:01 | BTC Holding UP @ 0.96 — stop-loss @ 0.5
+2026-05-08 04:45:00 | BTC UP held to resolution ✓ win (+$0.88) — streak reset
+2026-05-08 04:45:25 | BTC New session (KXBTC15M-26MAY080500-00)
+2026-05-08 04:45:26 | BTC WS re-subscribed to KXBTC15M-26MAY080500-00
+2026-05-08 04:45:26 | BTC WS subscribed: channel=orderbook_delta sid=16
+2026-05-08 05:00:27 | BTC New session (KXBTC15M-26MAY080515-15)
+2026-05-08 05:00:27 | BTC WS re-subscribed to KXBTC15M-26MAY080515-15
+2026-05-08 05:00:27 | BTC WS subscribed: channel=orderbook_delta sid=17
+2026-05-08 05:15:28 | BTC New session (KXBTC15M-26MAY080530-30)
+2026-05-08 05:15:28 | BTC WS re-subscribed to KXBTC15M-26MAY080530-30
+2026-05-08 05:15:28 | BTC WS subscribed: channel=orderbook_delta sid=18
+2026-05-08 05:30:29 | BTC New session (KXBTC15M-26MAY080545-45)
+2026-05-08 05:30:30 | BTC WS re-subscribed to KXBTC15M-26MAY080545-45
+2026-05-08 05:30:30 | BTC WS subscribed: channel=orderbook_delta sid=19
+2026-05-08 05:45:01 | BTC New session (KXBTC15M-26MAY080600-00)
+2026-05-08 05:45:02 | BTC WS re-subscribed to KXBTC15M-26MAY080600-00
+2026-05-08 05:45:02 | BTC WS subscribed: channel=orderbook_delta sid=20
+2026-05-08 06:00:03 | BTC New session (KXBTC15M-26MAY080615-15)
+2026-05-08 06:00:03 | BTC WS re-subscribed to KXBTC15M-26MAY080615-15
+2026-05-08 06:00:03 | BTC WS subscribed: channel=orderbook_delta sid=21
+2026-05-08 06:05:00 | BTC ✓ Edge OK UP: fair=1.00 market=0.95 edge=+0.049
+2026-05-08 06:05:00 | BTC UP triggered @ 0.95 [WS] conviction=0.56 ss=+0.47 — placing order
+2026-05-08 06:05:00 | ORDER payload: {"ticker": "KXBTC15M-26MAY080615-15", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 97, "client_order_id": "9de42817-44d9-43a2-86d5-25564978317d"}
+2026-05-08 06:05:00 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"9de42817-44d9-43a2-86d5-25564978317d","created_time":"2026-05-08T10:05:00.438416Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T10:05:00.438416Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 06:05:02 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.922000","event_ticker":"KXBTC15M-26MAY080615","fees_paid_dollars":"0.078000","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.922000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.078000","last_upd
+2026-05-08 06:05:02 | BTC Position confirmed
+2026-05-08 06:05:02 | BTC Holding UP @ 0.95 — stop-loss @ 0.5
+2026-05-08 06:09:01 | BTC ⚡ stop-loss @ 0.50 (entry=0.95)
+2026-05-08 06:09:01 | ORDER payload: {"ticker": "KXBTC15M-26MAY080615-15", "action": "sell", "side": "yes", "count": 5, "type": "limit", "yes_price": 1, "client_order_id": "cb5800b7-096a-46e1-94c0-fcd9d28e2bf4", "reduce_only": true, "time_in_force": "immediate_or_cancel"}
+2026-05-08 06:09:01 | ORDER response: HTTP 201 | {"order":{"action":"sell","client_order_id":"cb5800b7-096a-46e1-94c0-fcd9d28e2bf4","created_time":"2026-05-08T10:09:01.109321Z","fill_count_fp":"5.00","initial_count_fp":"5.00","last_update_time":"2026-05-08T10:09:01.109321Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_p
+2026-05-08 06:09:01 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"16.167000","event_ticker":"KXBTC15M-26MAY080615","fees_paid_dollars":"0.168000","realized_pnl_dollars":"-2.355000","total_cost_dollars":"23.522000","total_cost_shares_fp":"27.00"}],"market_positions":[{"fees_paid_dollars":"0.168000","last_up
+2026-05-08 06:09:02 | ORDER payload: {"ticker": "KXBTC15M-26MAY080615-15", "action": "sell", "side": "yes", "count": 5, "type": "limit", "yes_price": 1, "client_order_id": "a2dffb62-532d-4edb-8c15-d3339c623fd2", "reduce_only": true, "time_in_force": "immediate_or_cancel"}
+2026-05-08 06:09:02 | ORDER response: HTTP 201 | {"order":{"action":"sell","client_order_id":"a2dffb62-532d-4edb-8c15-d3339c623fd2","created_time":"2026-05-08T10:09:02.32333Z","fill_count_fp":"5.00","initial_count_fp":"5.00","last_update_time":"2026-05-08T10:09:02.32333Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_pri
+2026-05-08 06:09:02 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"11.412000","event_ticker":"KXBTC15M-26MAY080615","fees_paid_dollars":"0.258000","realized_pnl_dollars":"-4.860000","total_cost_dollars":"26.272000","total_cost_shares_fp":"32.00"}],"market_positions":[{"fees_paid_dollars":"0.258000","last_up
+2026-05-08 06:09:03 | ORDER payload: {"ticker": "KXBTC15M-26MAY080615-15", "action": "sell", "side": "yes", "count": 5, "type": "limit", "yes_price": 1, "client_order_id": "02d6dc54-acdf-488e-b28b-d6fcb4eaa977", "reduce_only": true, "time_in_force": "immediate_or_cancel"}
+2026-05-08 06:09:03 | ORDER response: HTTP 201 | {"order":{"action":"sell","client_order_id":"02d6dc54-acdf-488e-b28b-d6fcb4eaa977","created_time":"2026-05-08T10:09:03.467539Z","fill_count_fp":"5.00","initial_count_fp":"5.00","last_update_time":"2026-05-08T10:09:03.467539Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_p
+2026-05-08 06:09:03 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"6.657000","event_ticker":"KXBTC15M-26MAY080615","fees_paid_dollars":"0.348000","realized_pnl_dollars":"-7.365000","total_cost_dollars":"29.022000","total_cost_shares_fp":"37.00"}],"market_positions":[{"fees_paid_dollars":"0.348000","last_upd
+2026-05-08 06:09:03 | BTC Stop-loss sell failed — holding to resolution
+2026-05-08 06:09:03 | BTC Stop-loss PnL: $-9.9 | Consecutive losses: 1/2
+2026-05-08 06:15:04 | BTC New session (KXBTC15M-26MAY080630-30)
+2026-05-08 06:15:04 | BTC WS re-subscribed to KXBTC15M-26MAY080630-30
+2026-05-08 06:15:04 | BTC WS subscribed: channel=orderbook_delta sid=22
+2026-05-08 06:30:05 | BTC New session (KXBTC15M-26MAY080645-45)
+2026-05-08 06:30:06 | BTC WS re-subscribed to KXBTC15M-26MAY080645-45
+2026-05-08 06:30:06 | BTC WS subscribed: channel=orderbook_delta sid=23
+2026-05-08 06:36:39 | BTC ✓ Edge OK UP: fair=0.99 market=0.95 edge=+0.045
+2026-05-08 06:36:39 | BTC UP triggered @ 0.95 [WS] conviction=0.55 ss=+0.41 — placing order
+2026-05-08 06:36:39 | ORDER payload: {"ticker": "KXBTC15M-26MAY080645-45", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 97, "client_order_id": "64041220-ee2d-40d7-aa4a-d8454c9b0dd2"}
+2026-05-08 06:36:39 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"64041220-ee2d-40d7-aa4a-d8454c9b0dd2","created_time":"2026-05-08T10:36:39.440927Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T10:36:39.440927Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 06:36:41 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.856000","event_ticker":"KXBTC15M-26MAY080645","fees_paid_dollars":"0.084000","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.856000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.084000","last_upd
+2026-05-08 06:36:41 | BTC Position confirmed
+2026-05-08 06:36:41 | BTC Holding UP @ 0.95 — stop-loss @ 0.5
+2026-05-08 06:45:00 | BTC UP held to resolution ✓ win (+$1.1) — streak reset
+2026-05-08 06:45:06 | BTC New session (KXBTC15M-26MAY080700-00)
+2026-05-08 06:45:07 | BTC WS re-subscribed to KXBTC15M-26MAY080700-00
+2026-05-08 06:45:07 | BTC WS subscribed: channel=orderbook_delta sid=24
+2026-05-08 06:57:13 | BTC ✓ Edge OK UP: fair=0.97 market=0.93 edge=+0.044
+2026-05-08 06:57:13 | BTC UP triggered @ 0.93 [WS] conviction=0.59 ss=+0.61 — placing order
+2026-05-08 06:57:13 | ORDER payload: {"ticker": "KXBTC15M-26MAY080700-00", "action": "buy", "side": "yes", "count": 22, "type": "limit", "yes_price": 95, "client_order_id": "8ecf050c-6850-4fe7-87e3-c6b78dfc3762"}
+2026-05-08 06:57:13 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"8ecf050c-6850-4fe7-87e3-c6b78dfc3762","created_time":"2026-05-08T10:57:13.347709Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T10:57:13.347709Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 06:57:15 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.416000","event_ticker":"KXBTC15M-26MAY080700","fees_paid_dollars":"0.104000","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.416000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.104000","last_upd
+2026-05-08 06:57:15 | BTC Position confirmed
+2026-05-08 06:57:15 | BTC Holding UP @ 0.93 — stop-loss @ 0.5
+2026-05-08 07:00:00 | BTC UP held to resolution ✓ win (+$1.54) — streak reset
+2026-05-08 07:00:08 | BTC New session (KXBTC15M-26MAY080715-15)
+2026-05-08 07:00:09 | BTC WS re-subscribed to KXBTC15M-26MAY080715-15
+2026-05-08 07:00:09 | BTC WS subscribed: channel=orderbook_delta sid=25
+2026-05-08 07:15:10 | BTC New session (KXBTC15M-26MAY080730-30)
+2026-05-08 07:15:10 | BTC WS re-subscribed to KXBTC15M-26MAY080730-30
+2026-05-08 07:15:10 | BTC WS subscribed: channel=orderbook_delta sid=26
+2026-05-08 07:30:11 | BTC New session (KXBTC15M-26MAY080745-45)
+2026-05-08 07:30:12 | BTC WS re-subscribed to KXBTC15M-26MAY080745-45
+2026-05-08 07:30:12 | BTC WS subscribed: channel=orderbook_delta sid=27
+2026-05-08 07:40:06 | BTC ✓ Edge OK DOWN: fair=0.01 market=0.96 edge=+0.035
+2026-05-08 07:40:06 | BTC DOWN triggered @ 0.96 [WS] conviction=0.56 ss=-0.54 — placing order
+2026-05-08 07:40:06 | ORDER payload: {"ticker": "KXBTC15M-26MAY080745-45", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 98, "client_order_id": "99ba0386-f5bb-4842-8a0a-b7f8b6096da2"}
+2026-05-08 07:40:07 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"99ba0386-f5bb-4842-8a0a-b7f8b6096da2","created_time":"2026-05-08T11:40:06.998621Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T11:40:06.998621Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-08 07:40:09 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"21.098000","event_ticker":"KXBTC15M-26MAY080745","fees_paid_dollars":"0.062000","realized_pnl_dollars":"0.000000","total_cost_dollars":"21.098000","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.062000","last_upd
+2026-05-08 07:40:09 | BTC Position confirmed
+2026-05-08 07:40:09 | BTC Holding DOWN @ 0.96 — stop-loss @ 0.5
+2026-05-08 07:45:00 | BTC DOWN held to resolution ✓ win (+$0.88) — streak reset
+2026-05-08 07:45:13 | BTC New session (KXBTC15M-26MAY080800-00)
+2026-05-08 07:45:14 | BTC WS re-subscribed to KXBTC15M-26MAY080800-00
+2026-05-08 07:45:14 | BTC WS subscribed: channel=orderbook_delta sid=28
+2026-05-08 08:00:14 | BTC New session (KXBTC15M-26MAY080815-15)
+2026-05-08 08:00:14 | BTC WS re-subscribed to KXBTC15M-26MAY080815-15
+2026-05-08 08:00:14 | BTC WS subscribed: channel=orderbook_delta sid=29
+2026-05-08 08:15:15 | BTC New session (KXBTC15M-26MAY080830-30)
+2026-05-08 08:15:16 | BTC WS re-subscribed to KXBTC15M-26MAY080830-30
+2026-05-08 08:15:16 | BTC WS subscribed: channel=orderbook_delta sid=30
+2026-05-08 08:30:17 | BTC New session (KXBTC15M-26MAY080845-45)
+2026-05-08 08:30:17 | BTC WS re-subscribed to KXBTC15M-26MAY080845-45
+2026-05-08 08:30:17 | BTC WS subscribed: channel=orderbook_delta sid=31
+2026-05-08 08:45:18 | BTC New session (KXBTC15M-26MAY080900-00)
+2026-05-08 08:45:18 | BTC WS re-subscribed to KXBTC15M-26MAY080900-00
+2026-05-08 08:45:18 | BTC WS subscribed: channel=orderbook_delta sid=32
+2026-05-08 08:50:00 | BTC ✓ Edge OK DOWN: fair=0.05 market=0.92 edge=+0.036
+2026-05-08 08:50:00 | BTC DOWN triggered @ 0.92 [WS] conviction=0.61 ss=-0.58 — placing order
+2026-05-08 08:50:00 | ORDER payload: {"ticker": "KXBTC15M-26MAY080900-00", "action": "buy", "side": "no", "count": 22, "type": "limit", "no_price": 94, "client_order_id": "231eeefb-06a2-49c0-8c52-1c5795a048cb"}
+2026-05-08 08:50:00 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"231eeefb-06a2-49c0-8c52-1c5795a048cb","created_time":"2026-05-08T12:50:00.53848Z","fill_count_fp":"22.00","initial_count_fp":"22.00","last_update_time":"2026-05-08T12:50:00.53848Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_pr
+2026-05-08 08:50:02 | POSITION response: {"cursor":"","event_positions":[{"event_exposure_dollars":"20.220920","event_ticker":"KXBTC15M-26MAY080900","fees_paid_dollars":"0.119080","realized_pnl_dollars":"0.000000","total_cost_dollars":"20.220920","total_cost_shares_fp":"22.00"}],"market_positions":[{"fees_paid_dollars":"0.119080","last_upd
+2026-05-08 08:50:02 | BTC Position confirmed
+2026-05-08 08:50:02 | BTC Holding DOWN @ 0.92 — stop-loss @ 0.5
+2026-05-08 09:00:00 | BTC DOWN held to resolution ✓ win (+$1.76) — streak reset
+2026-05-08 09:00:19 | BTC New session (KXBTC15M-26MAY080915-15)
+2026-05-08 09:00:20 | BTC WS re-subscribed to KXBTC15M-26MAY080915-15
+2026-05-08 09:00:20 | BTC WS subscribed: channel=orderbook_delta sid=33
+2026-05-08 09:15:20 | BTC New session (KXBTC15M-26MAY080930-30)
+2026-05-08 09:15:21 | BTC WS re-subscribed to KXBTC15M-26MAY080930-30
+2026-05-08 09:15:21 | BTC WS subscribed: channel=orderbook_delta sid=34
