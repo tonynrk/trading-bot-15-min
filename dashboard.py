@@ -121,7 +121,7 @@ def compute_stats(asset: str) -> dict:
     today_pnl  = round(sum(r.get("pnl", 0) for r in today_exits), 2)
     win_rate   = round(100 * len(wins) / len(exits), 1) if exits else 0.0
 
-    recent = exits[-10:][::-1]   # last 10 exits, newest first
+    recent = exits[-20:][::-1]   # last 20 exits, newest first
 
     return {
         "n_entries":  len(entries),
@@ -371,17 +371,19 @@ function render(data) {
         <div class="log" style="max-height:180px">${(s.stats?.recent||[]).map(r=>{
           const pnl = r.pnl||0;
           const c = pnl>0?'#3fb950':pnl<0?'#f85149':'#8b949e';
-          // iso is NY-labeled wall clock (e.g. "2026-05-08T00:39:11-04:00"); display H:M:S as-is
+          // iso is NY-labeled wall clock (e.g. "2026-05-08T00:39:11-04:00"); display date + H:M:S as-is
           let t;
           if (r.iso) {
-            const tm = r.iso.split('T')[1].split(/[+-]/)[0].slice(0,8);
+            const [datePart, rest] = r.iso.split('T');
+            const tm = rest.split(/[+-]/)[0].slice(0,8);
             const [hh,mm,ss] = tm.split(':');
             const h = parseInt(hh,10);
             const ampm = h >= 12 ? 'PM' : 'AM';
             const h12 = ((h + 11) % 12) + 1;
-            t = `${h12}:${mm}:${ss} ${ampm}`;
+            const [yy,mo,dd] = datePart.split('-');
+            t = `${parseInt(mo,10)}/${parseInt(dd,10)} ${h12}:${mm}:${ss} ${ampm}`;
           } else {
-            t = new Date(r.ts*1000).toLocaleTimeString();
+            t = new Date(r.ts*1000).toLocaleString();
           }
           return `<div>${t} · ${r.event} ${r.side||''} entry=${fmt(r.entry,2)} exit=${fmt(r.exit,2)} size=${r.size} <span style="color:${c}">$${fmt(pnl,2)}</span></div>`;
         }).join("")}</div>
