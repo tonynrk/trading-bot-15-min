@@ -760,9 +760,10 @@ def get_position_count(market_ticker: str, asset: str = "") -> Optional[int]:
         for pos in data.get("market_positions", []):
             if pos.get("ticker") and pos["ticker"] != market_ticker:
                 continue
+            # position_fp is a 2-decimal string ("22.00") in contract units, NOT ×100.
             qty = pos.get("position")
-            if qty is None and "position_fp" in pos:
-                qty = float(pos["position_fp"]) / 100.0
+            if qty is None and pos.get("position_fp") is not None:
+                qty = float(pos["position_fp"])
             if qty is None:
                 continue
             return int(abs(round(float(qty))))
@@ -795,9 +796,10 @@ def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
         for p in data.get("market_positions", []):
             if p.get("ticker") and p["ticker"] != market_ticker:
                 continue
+            # position_fp is 2-decimal string ("22.00") in contract units; sign indicates side
             qty_signed = p.get("position")
-            if qty_signed is None and "position_fp" in p:
-                qty_signed = float(p["position_fp"]) / 100.0
+            if qty_signed is None and p.get("position_fp") is not None:
+                qty_signed = float(p["position_fp"])
             if qty_signed is None or float(qty_signed) == 0:
                 continue
             qty = int(abs(round(float(qty_signed))))
@@ -819,13 +821,14 @@ def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
                     for f in fills:
                         if (f.get("outcome_side") or f.get("side")) != target:
                             continue
-                        cnt = float(f.get("count_fp", f.get("count", 0)))
-                        if "count_fp" in f:
-                            cnt /= 100.0
-                        pf = f.get("yes_price_dollars") if side == "UP" else f.get("no_price_dollars")
-                        if pf is None:
+                        cnt_raw = f.get("count_fp") if f.get("count_fp") is not None else f.get("count")
+                        cnt = float(cnt_raw) if cnt_raw is not None else 0.0
+                        pf_raw = f.get("yes_price_dollars") if side == "UP" else f.get("no_price_dollars")
+                        if pf_raw is None:
                             p_cents = f.get("yes_price") if side == "UP" else f.get("no_price")
                             pf = (p_cents / 100.0) if p_cents is not None else 0.0
+                        else:
+                            pf = float(pf_raw)
                         total_cost += pf * cnt
                         total_count += cnt
                         if f.get("order_id"):
@@ -961,17 +964,24 @@ def get_fill_summary(order_id: str, asset: str = "") -> Optional[dict]:
         total_count = 0.0
         total_fees = 0.0
         for f in fills:
-            # Kalshi returns count_fp as fixed-point (×100) per docs
-            cnt = float(f.get("count_fp", f.get("count", 0))) / (100.0 if "count_fp" in f else 1.0)
+            # count_fp / yes_price_dollars / no_price_dollars are 2-decimal STRINGS
+            # already in contract / dollar units (e.g. "42.00", "0.1600") — float them directly.
+            cnt_raw = f.get("count_fp")
+            if cnt_raw is None:
+                cnt_raw = f.get("count")
+            cnt = float(cnt_raw) if cnt_raw is not None else 0.0
             outcome = f.get("outcome_side") or f.get("side")
-            price = f.get("yes_price_dollars") if outcome == "yes" else f.get("no_price_dollars")
-            if price is None:
-                # legacy fallback (cents fields)
+            price_raw = f.get("yes_price_dollars") if outcome == "yes" else f.get("no_price_dollars")
+            if price_raw is None:
+                # legacy cents-int fallback (rare — endpoint should return *_dollars)
                 p_cents = f.get("yes_price") if outcome == "yes" else f.get("no_price")
                 price = (p_cents / 100.0) if p_cents is not None else 0.0
+            else:
+                price = float(price_raw)
             total_cost += price * cnt
             total_count += cnt
-            total_fees += float(f.get("fee_cost", 0) or 0)
+            fee_raw = f.get("fee_cost") or f.get("fees_paid_dollars") or 0
+            total_fees += float(fee_raw)
         if total_count <= 0:
             return None
         return {
