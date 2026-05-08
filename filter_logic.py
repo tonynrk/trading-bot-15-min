@@ -13,7 +13,7 @@ EXIT_PRICE           = 0.50
 TIME_WINDOW          = 10.0
 MIN_SETTLEMENT_SCORE = 0.40
 MIN_CONVICTION       = 0.40
-MIN_EDGE             = 0.03
+MIN_EDGE             = 0.01
 MAX_CONSECUTIVE_LOSSES = 2
 
 def pick_side(up: float, down: float) -> str:
