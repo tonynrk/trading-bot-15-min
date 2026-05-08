@@ -38,7 +38,19 @@ try:
 except ImportError:
     SIGNALS_AVAILABLE = False
 
-from filter_logic import evaluate_filters, compute_pnl, is_win
+from filter_logic import (
+    evaluate_filters, compute_pnl, is_win,
+    ENTRY_PRICE as ENTRY,
+    ENTRY_LAST2,
+    EXIT_PRICE as EXIT,
+    TIME_WINDOW,
+    MIN_SETTLEMENT_SCORE,
+    MIN_CONVICTION,
+    MIN_EDGE,
+    MAX_CONSECUTIVE_LOSSES,
+    ORDER_SIZE,
+    ASSET_ORDER_SIZE,
+)
 
 try:
     import websockets
@@ -53,20 +65,13 @@ except ImportError:
 # =========================
 # Strategy Configuration
 # =========================
-ENTRY                  = 0.65   # relaxed from 0.82 → trade lower-price entries with better R:R, relying on Signal/Conviction/Settlement/Edge stack
-ENTRY_LAST2            = 0.85   # last-2-min fallback: enter if contract >= this (no signal required)
+# Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, ORDER_SIZE, ASSET_ORDER_SIZE,
+# MAX_CONSECUTIVE_LOSSES, ENTRY_LAST2) are imported from filter_logic.py — single
+# source of truth shared with the dashboard. Edit them there, not here.
 LAST2_BYPASS_SIGNAL    = False         # global fallback (overridden per-asset below)
 LAST2_BYPASS_SIGNAL_ASSETS = set()     # disabled — last-2min is too volatile, require signal always
-EXIT                   = 0.50   # stop-loss: exit when contract drops below this (loosened from 0.55 to survive vol spikes)
-TIME_WINDOW            = 10.0   # widened from 6 → catch earlier entries; relies on Edge filter (d2) to reject when σ√T makes fair_prob too uncertain
-MIN_SETTLEMENT_SCORE   = 0.30   # |ss| floor (both sides)
-MIN_CONVICTION         = 0.40   # signal conviction floor (relaxed from 0.55)
-USE_EDGE_FILTER        = True   # enforce d2 fair-value edge filter before entry
-MIN_EDGE               = 0.01   # required edge (fair_prob - market_price), e.g. 0.01 = 1¢ underpriced
-MAX_CONSECUTIVE_LOSSES = 2      # pause trading after this many consecutive losses (tightened from 3)
-ASSETS       = ["BTC"]
-ORDER_SIZE   = 5   # default fallback
-ASSET_ORDER_SIZE = {"BTC": 22, "ETH": 18}  # sized for ~$600 bankroll: ~$18/trade = 3% per trade (Phase 1)
+USE_EDGE_FILTER        = True          # enforce d2 fair-value edge filter before entry
+ASSETS                 = ["BTC"]
 
 # =========================
 # API / Order Config
