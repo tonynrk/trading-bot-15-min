@@ -143,6 +143,8 @@ asset_last_price_log_tick: dict = {}
 log_once_keys: dict         = {}
 consecutive_losses: dict    = {}   # asset -> int, resets on win
 asset_reentry_count: dict   = {}   # asset -> int, resets each session
+_last_buy_order_id: dict    = {}   # asset -> last successful BUY order_id (for fill lookup)
+_boot_quarter: dict         = {}   # asset -> first quarter seen at process startup (skip in-progress session)
 
 # =========================
 # Trade Journal (append-only JSONL)
@@ -743,26 +745,37 @@ def get_kalshi_market_snapshot(asset: str, max_retries: int = 4) -> Optional[dic
 # =========================
 # Position Checks
 # =========================
-def has_existing_position(market_ticker: str, asset: str = "") -> bool:
+def get_position_count(market_ticker: str, asset: str = "") -> Optional[int]:
+    """Return absolute count of contracts currently held on Kalshi for this market.
+    Returns None if API call fails (caller should fallback to local pos['size'])."""
     if not market_ticker:
-        return False
+        return None
     res = kalshi_signed_request(
         "GET", f"/trade-api/v2/portfolio/positions?ticker={market_ticker}"
     )
     if not res or res["status"] != 200:
         Log(f"POSITION check: HTTP {res['status'] if res else 'no response'} for {market_ticker}", asset=asset)
-        return False
+        return None
     try:
         data = json.loads(res["body"])
         for pos in data.get("market_positions", []):
-            qty = pos.get("position", 0) or pos.get("position_fp", 0) or 0
-            if abs(float(qty)) > 0:
-                Log(f"POSITION response: {res['body'][:300]}", asset=asset)
-                return True
-        return False
+            if pos.get("ticker") and pos["ticker"] != market_ticker:
+                continue
+            qty = pos.get("position")
+            if qty is None and "position_fp" in pos:
+                qty = float(pos["position_fp"]) / 100.0
+            if qty is None:
+                continue
+            return int(abs(round(float(qty))))
+        return 0
     except Exception as e:
         Log(f"POSITION parse error: {e} | body: {res['body'][:200]}", asset=asset)
-        return False
+        return None
+
+
+def has_existing_position(market_ticker: str, asset: str = "") -> bool:
+    cnt = get_position_count(market_ticker, asset=asset)
+    return bool(cnt and cnt > 0)
 
 # =========================
 # Order Placement
@@ -849,7 +862,52 @@ def place_kalshi_order(
         if has_pos:
             Log(f"{market_ticker} Order filled during cancel race, treating as confirmed", asset=asset)
 
+    if is_buy and has_pos and order_id and asset:
+        _last_buy_order_id[asset] = order_id
+
     return has_pos if is_buy else not has_pos
+
+
+def get_fill_summary(order_id: str, asset: str = "") -> Optional[dict]:
+    """Query /portfolio/fills for a specific order_id; return dict with
+    avg_price (dollars), total_count, total_fees, n_fills. Returns None on error."""
+    if not order_id:
+        return None
+    res = kalshi_signed_request("GET", f"/trade-api/v2/portfolio/fills?order_id={order_id}&limit=1000")
+    if not res or res["status"] != 200:
+        Log(f"FILLS lookup failed: status={res['status'] if res else 'none'}", asset=asset)
+        return None
+    try:
+        data = json.loads(res["body"])
+        fills = data.get("fills", [])
+        if not fills:
+            return None
+        total_cost = 0.0
+        total_count = 0.0
+        total_fees = 0.0
+        for f in fills:
+            # Kalshi returns count_fp as fixed-point (×100) per docs
+            cnt = float(f.get("count_fp", f.get("count", 0))) / (100.0 if "count_fp" in f else 1.0)
+            outcome = f.get("outcome_side") or f.get("side")
+            price = f.get("yes_price_dollars") if outcome == "yes" else f.get("no_price_dollars")
+            if price is None:
+                # legacy fallback (cents fields)
+                p_cents = f.get("yes_price") if outcome == "yes" else f.get("no_price")
+                price = (p_cents / 100.0) if p_cents is not None else 0.0
+            total_cost += price * cnt
+            total_count += cnt
+            total_fees += float(f.get("fee_cost", 0) or 0)
+        if total_count <= 0:
+            return None
+        return {
+            "avg_price": total_cost / total_count,
+            "total_count": total_count,
+            "total_fees": total_fees,
+            "n_fills": len(fills),
+        }
+    except Exception as e:
+        Log(f"FILLS parse error: {e}", asset=asset)
+        return None
 
 def buy_position(asset: str, market_ticker: str, side: str, price: float, retry: int = 1) -> bool:
     size = ASSET_ORDER_SIZE.get(asset, ORDER_SIZE)
@@ -862,7 +920,8 @@ def sell_position(asset: str, side: str, price: float) -> bool:
     pos = positions.get(asset)
     if not pos or not pos.get("ticker"):
         return True
-    return place_kalshi_order("SELL", pos["ticker"], side, price, ORDER_SIZE, asset=asset)
+    size = pos.get("size", ASSET_ORDER_SIZE.get(asset, ORDER_SIZE))
+    return place_kalshi_order("SELL", pos["ticker"], side, price, size, asset=asset)
 
 
 def can_place_order_now(asset: str) -> bool:
@@ -958,6 +1017,16 @@ def process_asset(asset: str):
         fair_prob=fair_p,
     )
 
+    # ---- Cold-start guard: skip session that was already in-progress at boot ----
+    if asset not in _boot_quarter:
+        _boot_quarter[asset] = quarter
+        if not positions.get(asset):
+            Log(f"{asset} 🟡 Boot mid-session ({ticker}) — skipping until next clean session", asset=asset)
+    if _boot_quarter.get(asset) == quarter and not positions.get(asset):
+        log_once(asset, "BOOT_SKIP", f"{asset} ⏭ Skipping boot session — wait for next start")
+        _ws_ticker[asset] = ticker
+        return
+
     # ---- New session ----
     if asset not in asset_session_quarter or asset_session_quarter[asset] != quarter:
         asset_session_quarter[asset] = quarter
@@ -991,6 +1060,19 @@ def process_asset(asset: str):
         # Quarter rolled → held to resolution
         if current_quarter_index() != pos["quarter_index"]:
             won = is_win(cur)  # contract near $1 = win
+            # Refresh size from Kalshi position (source of truth — incl. late fills)
+            actual_count = get_position_count(pos["ticker"], asset=asset)
+            if actual_count is not None and actual_count > 0 and actual_count != pos.get("size"):
+                Log(f"{asset} Position size {pos.get('size')}→{actual_count} (late fills)", asset=asset)
+                pos["size"] = actual_count
+            # Refresh avg entry from fills
+            order_id = _last_buy_order_id.get(asset, "")
+            summary = get_fill_summary(order_id, asset=asset) if order_id else None
+            if summary and summary["total_count"] > 0:
+                new_entry = summary["avg_price"]
+                if abs(new_entry - pos.get("entry", 0)) > 0.005:
+                    Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
+                pos["entry"] = new_entry
             sz = pos.get("size", ASSET_ORDER_SIZE.get(asset, ORDER_SIZE))
             pnl = compute_pnl(pos["entry"], 1.0 if won else 0.0, sz)
             if won:
@@ -1009,6 +1091,19 @@ def process_asset(asset: str):
         # Stop-loss
         if cur <= EXIT:
             asset_phase[asset] = "STOP_LOSS"  # prevent re-entry on next poll
+            # Refresh size from Kalshi position (source of truth — incl. late fills)
+            actual_count = get_position_count(pos["ticker"], asset=asset)
+            if actual_count is not None and actual_count > 0 and actual_count != pos.get("size"):
+                Log(f"{asset} Position size {pos.get('size')}→{actual_count} (late fills)", asset=asset)
+                pos["size"] = actual_count
+            # Refresh avg fill price from fills (for accurate PnL)
+            order_id = _last_buy_order_id.get(asset, "")
+            summary = get_fill_summary(order_id, asset=asset) if order_id else None
+            if summary and summary["total_count"] > 0:
+                new_entry = summary["avg_price"]
+                if abs(new_entry - pos.get("entry", 0)) > 0.005:
+                    Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
+                pos["entry"] = new_entry
             Log(f"{asset} ⚡ stop-loss @ {fmt(cur)} (entry={fmt(pos['entry'])})", asset=asset)
             sold = False
             for i in range(1, 4):
@@ -1175,24 +1270,45 @@ def process_asset(asset: str):
         prev_phase = asset_phase.get(asset)
         if prev_phase in ("BUY_FAILED", "STOP_LOSS"):
             asset_reentry_count[asset] = asset_reentry_count.get(asset, 0) + 1
-        size = ASSET_ORDER_SIZE.get(asset, ORDER_SIZE)
+        requested_size = ASSET_ORDER_SIZE.get(asset, ORDER_SIZE)
+
+        # Look up actual fill price + count from Kalshi
+        fill_price = entry_price
+        fill_size = requested_size
+        fill_fees = 0.0
+        order_id = _last_buy_order_id.get(asset, "")
+        summary = get_fill_summary(order_id, asset=asset) if order_id else None
+        if summary:
+            fill_price = summary["avg_price"]
+            fill_size = int(round(summary["total_count"]))
+            fill_fees = summary["total_fees"]
+            if abs(fill_price - entry_price) > 0.005 or fill_size != requested_size:
+                Log(f"{asset} Fill ≠ trigger: trigger={fmt(entry_price)} fill={fmt(fill_price)} "
+                    f"size={fill_size}/{requested_size} fees=${fill_fees:.4f} ({summary['n_fills']} fills)",
+                    asset=asset)
+        else:
+            Log(f"{asset} WARN: no fill summary, journaling trigger price as entry", asset=asset)
+
         positions[asset] = {
             "side":          side,
-            "entry":         entry_price,
+            "entry":         fill_price,
             "ticker":        ticker,
             "quarter_index": current_quarter_index(),
-            "size":          size,
+            "size":          fill_size,
         }
         asset_phase[asset] = "IN_POSITION"
-        journal("ENTRY", asset, side=side, entry=round(entry_price, 4),
-                size=size, ticker=ticker,
-                cost=round(entry_price * size, 2),
+        journal("ENTRY", asset, side=side, entry=round(fill_price, 4),
+                size=fill_size, ticker=ticker,
+                cost=round(fill_price * fill_size + fill_fees, 2),
+                trigger_price=round(entry_price, 4),
+                fees=round(fill_fees, 4),
+                order_id=order_id,
                 conviction=(sig.conviction if sig else None),
                 settlement_score=(sig.settlement_score if sig else None),
                 fair_prob=(edge_info["fair_prob"] if edge_info else None),
                 edge=(edge_info["edge_up"] if edge_info and side == "UP" else
                       edge_info["edge_down"] if edge_info else None))
-        Log(f"{asset} Holding {side} @ {fmt(entry_price)} — stop-loss @ {EXIT}", asset=asset)
+        Log(f"{asset} Holding {side} @ {fmt(fill_price)} (fill) — stop-loss @ {EXIT}", asset=asset)
     else:
         asset_phase[asset] = "BUY_FAILED"
         Log(f"{asset} Order not filled after 4 attempts, skipping session", asset=asset)
