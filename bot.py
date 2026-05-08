@@ -1216,14 +1216,15 @@ def process_asset(asset: str):
 
     # ---- New session ----
     if asset not in asset_session_quarter or asset_session_quarter[asset] != quarter:
+        prev_phase = asset_phase.get(asset)   # capture BEFORE overwrite
         asset_session_quarter[asset] = quarter
         asset_phase[asset]           = "WAIT_WINDOW"
         log_once_reset(asset)
         losses = consecutive_losses.get(asset, 0)
-        prev_phase = asset_phase.get(asset)
         if prev_phase == "PAUSED":
             # one session of rest completed — reset and resume
             consecutive_losses[asset] = 0
+            losses = 0
             Log(f"{asset} ▶ Resuming after pause — loss streak reset", asset=asset)
         elif losses >= MAX_CONSECUTIVE_LOSSES:
             Log(f"{asset} ⏸ Paused — {losses} consecutive losses. Sitting out this session.", asset=asset)
