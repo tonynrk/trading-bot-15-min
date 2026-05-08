@@ -16,9 +16,15 @@ import time
 import uuid
 from collections import deque as _deque
 from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-NY_TZ = ZoneInfo("America/New_York")  # auto-handles EDT (-04) ↔ EST (-05) DST switch
+try:
+    NY_TZ = ZoneInfo("America/New_York")  # auto-handles EDT (-04) ↔ EST (-05) DST switch
+except ZoneInfoNotFoundError:
+    # Windows lacks IANA tzdata — fall back to bundled `tzdata` pip package
+    import subprocess, sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", "tzdata"])
+    NY_TZ = ZoneInfo("America/New_York")
 from typing import Optional
 
 import requests
