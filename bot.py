@@ -163,13 +163,14 @@ def write_state(state: dict):
         pass
 
 def save_persistent():
-    """Save state that must survive restart: positions, loss streak, phase, current quarter."""
+    """Save state that must survive restart: positions, loss streak, phase, current quarter, last buy order_id."""
     try:
         data = {
             "positions": positions,
             "consecutive_losses": consecutive_losses,
             "asset_phase": asset_phase,
             "asset_session_quarter": asset_session_quarter,
+            "last_buy_order_id": _last_buy_order_id,
         }
         tmp = PERSIST_FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
@@ -189,6 +190,7 @@ def load_persistent():
         consecutive_losses.update(data.get("consecutive_losses", {}))
         asset_phase.update(data.get("asset_phase", {}))
         asset_session_quarter.update(data.get("asset_session_quarter", {}))
+        _last_buy_order_id.update(data.get("last_buy_order_id", {}))
         if positions or consecutive_losses:
             Log(f"Restored state: positions={list(positions.keys())} losses={dict(consecutive_losses)}")
     except Exception as e:
