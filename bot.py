@@ -668,6 +668,33 @@ def _parse_strike(ticker: str, market: dict) -> Optional[float]:
     return None
 
 
+# Per-ticker proxy strike cache for the directional "BTC up next 15m" markets,
+# where Kalshi only publishes floor_strike at/near close time. We approximate
+# the BRTI baseline as the first BTC composite price observed for the ticker.
+_strike_fallback: dict = {}
+
+def _approx_strike(ticker: str, asset: str) -> Optional[float]:
+    """Fallback strike when Kalshi hasn't published floor_strike yet.
+    Returns the first BTC composite price observed for this ticker as a
+    proxy for the BRTI baseline. Logs a warning the first time it's used
+    per ticker so the approximation is visible in the journal."""
+    if not ticker or not asset:
+        return None
+    cached = _strike_fallback.get(ticker)
+    if cached is not None:
+        return cached
+    if not SIGNALS_AVAILABLE:
+        return None
+    p = get_live_price(asset)
+    if p is None or p <= 0:
+        return None
+    _strike_fallback[ticker] = p
+    Log(f"{asset} ⚠ Strike fallback for {ticker}: proxy=${p:,.2f} "
+        f"(Kalshi floor_strike not yet published; using current BTC composite as BRTI baseline)",
+        asset=asset)
+    return p
+
+
 def get_kalshi_market_snapshot(asset: str, max_retries: int = 4) -> Optional[dict]:
     series = ASSET_SERIES_MAP.get(asset)
     if not series:
@@ -725,13 +752,16 @@ def get_kalshi_market_snapshot(asset: str, max_retries: int = 4) -> Optional[dic
 
                 if yes_price is not None and no_price is not None:
                     t = m.get("ticker", "")
+                    strike = _parse_strike(t, m)
+                    if strike is None:
+                        strike = _approx_strike(t, asset)
                     return {
                         "up":            yes_price,
                         "down":          no_price,
                         "minutes_left":  mins_left,
                         "close_time":    close_iso,
                         "market_ticker": t,
-                        "strike":        _parse_strike(t, m),
+                        "strike":        strike,
                     }
             except Exception as e:
                 Log(f"Error parsing snapshot for {asset}: {e}")
