@@ -48,8 +48,6 @@ from filter_logic import (
     MIN_CONVICTION,
     MIN_EDGE,
     MAX_CONSECUTIVE_LOSSES,
-    ORDER_SIZE,
-    ASSET_ORDER_SIZE,
 )
 
 try:
@@ -65,13 +63,14 @@ except ImportError:
 # =========================
 # Strategy Configuration
 # =========================
-# Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, ORDER_SIZE, ASSET_ORDER_SIZE,
-# MAX_CONSECUTIVE_LOSSES, ENTRY_LAST2) are imported from filter_logic.py — single
-# source of truth shared with the dashboard. Edit them there, not here.
+# Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES,
+# ENTRY_LAST2) are imported from filter_logic.py — single source of truth shared
+# with the dashboard. Edit them there, not here.
 LAST2_BYPASS_SIGNAL    = False         # global fallback (overridden per-asset below)
 LAST2_BYPASS_SIGNAL_ASSETS = set()     # disabled — last-2min is too volatile, require signal always
 USE_EDGE_FILTER        = True          # enforce d2 fair-value edge filter before entry
 ASSETS                 = ["BTC"]
+ASSET_ORDER_SIZE       = {"BTC": 22, "ETH": 18}  # contracts per trade — must define every asset in ASSETS
 
 # =========================
 # API / Order Config
@@ -915,7 +914,7 @@ def get_fill_summary(order_id: str, asset: str = "") -> Optional[dict]:
         return None
 
 def buy_position(asset: str, market_ticker: str, side: str, price: float, retry: int = 1) -> bool:
-    size = ASSET_ORDER_SIZE.get(asset, ORDER_SIZE)
+    size = ASSET_ORDER_SIZE[asset]
     # last 2 retries: add extra 0.02 to break through thin order books
     extra = 0.02 if retry >= 3 else 0.0
     adj_price = min(price + extra, 0.98)
@@ -925,7 +924,7 @@ def sell_position(asset: str, side: str, price: float) -> bool:
     pos = positions.get(asset)
     if not pos or not pos.get("ticker"):
         return True
-    size = pos.get("size", ASSET_ORDER_SIZE.get(asset, ORDER_SIZE))
+    size = pos.get("size", ASSET_ORDER_SIZE[asset])
     return place_kalshi_order("SELL", pos["ticker"], side, price, size, asset=asset)
 
 
@@ -1078,7 +1077,7 @@ def process_asset(asset: str):
                 if abs(new_entry - pos.get("entry", 0)) > 0.005:
                     Log(f"{asset} Avg entry {fmt(pos.get('entry',0))}→{fmt(new_entry)}", asset=asset)
                 pos["entry"] = new_entry
-            sz = pos.get("size", ASSET_ORDER_SIZE.get(asset, ORDER_SIZE))
+            sz = pos.get("size", ASSET_ORDER_SIZE[asset])
             pnl = compute_pnl(pos["entry"], 1.0 if won else 0.0, sz)
             if won:
                 consecutive_losses[asset] = 0
@@ -1122,7 +1121,7 @@ def process_asset(asset: str):
             if not sold:
                 Log(f"{asset} Stop-loss sell failed — holding to resolution", asset=asset)
                 asset_phase[asset] = "BUY_FAILED"
-            sz = pos.get("size", ASSET_ORDER_SIZE.get(asset, ORDER_SIZE))
+            sz = pos.get("size", ASSET_ORDER_SIZE[asset])
             pnl = compute_pnl(pos["entry"], cur, sz)
             journal("STOP_LOSS", asset, side=pos["side"], entry=round(pos["entry"], 4),
                     exit=round(cur, 4), size=sz, pnl=pnl, sold=sold, ticker=pos.get("ticker"))
@@ -1275,7 +1274,7 @@ def process_asset(asset: str):
         prev_phase = asset_phase.get(asset)
         if prev_phase in ("BUY_FAILED", "STOP_LOSS"):
             asset_reentry_count[asset] = asset_reentry_count.get(asset, 0) + 1
-        requested_size = ASSET_ORDER_SIZE.get(asset, ORDER_SIZE)
+        requested_size = ASSET_ORDER_SIZE[asset]
 
         # Look up actual fill price + count from Kalshi
         fill_price = entry_price
@@ -1348,7 +1347,7 @@ def main():
 
     load_kalshi_credentials()
     load_persistent()
-    sizes = {a: ASSET_ORDER_SIZE.get(a, ORDER_SIZE) for a in ASSETS}
+    sizes = {a: ASSET_ORDER_SIZE[a] for a in ASSETS}
     Log(
         f"Momentum Bot Started | "
         f"entry={ENTRY} sl={EXIT} window={TIME_WINDOW:.0f}m sizes={sizes} | "

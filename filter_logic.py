@@ -17,11 +17,6 @@ MIN_CONVICTION       = 0.40
 MIN_EDGE             = 0.01
 MAX_CONSECUTIVE_LOSSES = 2
 
-# Order sizing
-ORDER_SIZE = 5  # default fallback; per-asset override in ASSET_ORDER_SIZE
-ASSET_ORDER_SIZE = {"BTC": 22, "ETH": 18}  # sized for ~$600 bankroll: ~3% per trade
-
-
 def pick_side(up: float, down: float) -> str:
     """Return 'UP' or 'DOWN' — whichever has higher price."""
     return "UP" if up >= down else "DOWN"
