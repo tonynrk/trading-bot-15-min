@@ -41,7 +41,6 @@ except ImportError:
 from filter_logic import (
     evaluate_filters, compute_pnl, is_win,
     ENTRY_PRICE as ENTRY,
-    ENTRY_LAST2,
     EXIT_PRICE as EXIT,
     TIME_WINDOW,
     MIN_SETTLEMENT_SCORE,
@@ -63,11 +62,9 @@ except ImportError:
 # =========================
 # Strategy Configuration
 # =========================
-# Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES,
-# ENTRY_LAST2) are imported from filter_logic.py — single source of truth shared
-# with the dashboard. Edit them there, not here.
-LAST2_BYPASS_SIGNAL    = False         # global fallback (overridden per-asset below)
-LAST2_BYPASS_SIGNAL_ASSETS = set()     # disabled — last-2min is too volatile, require signal always
+# Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES)
+# are imported from filter_logic.py — single source of truth shared with the
+# dashboard. Edit them there, not here.
 USE_EDGE_FILTER        = True          # enforce d2 fair-value edge filter before entry
 ASSETS                 = ["BTC"]
 ASSET_ORDER_SIZE       = {"BTC": 22, "ETH": 18}  # contracts per trade — must define every asset in ASSETS
@@ -1182,13 +1179,8 @@ def process_asset(asset: str):
     if not side:
         return
 
-    # Last-2-min fallback: skip signal check if enabled and price is strong enough
-    bypass = LAST2_BYPASS_SIGNAL or (asset in LAST2_BYPASS_SIGNAL_ASSETS)
-    if mins_left <= 2.0 and entry_price >= ENTRY_LAST2 and bypass:
-        log_once(asset, f"LAST2_{side}",
-                 f"{asset} ⚡ Last-2m entry {side} @ {fmt(entry_price)} (no signal required)")
-    elif sig:
-        # Normal signal confirmation
+    # Signal confirmation required for every entry (no bypass)
+    if sig:
         if sig.signal != side:
             log_once(asset, f"SIG_DISAGREES_{side}",
                      f"{asset} ⚠ SIGNAL {sig.signal} — ss={sig.settlement_score:+.2f}")
@@ -1383,7 +1375,7 @@ def main():
                 "consecutive_losses": consecutive_losses,
                 "max_consecutive_losses": MAX_CONSECUTIVE_LOSSES,
                 "config": {
-                    "ENTRY": ENTRY, "ENTRY_LAST2": ENTRY_LAST2, "EXIT": EXIT,
+                    "ENTRY": ENTRY, "EXIT": EXIT,
                     "TIME_WINDOW": TIME_WINDOW,
                     "MIN_SETTLEMENT_SCORE": MIN_SETTLEMENT_SCORE,
                     "MIN_CONVICTION": MIN_CONVICTION,
