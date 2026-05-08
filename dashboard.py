@@ -371,7 +371,18 @@ function render(data) {
         <div class="log" style="max-height:180px">${(s.stats?.recent||[]).map(r=>{
           const pnl = r.pnl||0;
           const c = pnl>0?'#3fb950':pnl<0?'#f85149':'#8b949e';
-          const t = new Date(r.ts*1000).toLocaleTimeString();
+          // iso is NY-labeled wall clock (e.g. "2026-05-08T00:39:11-04:00"); display H:M:S as-is
+          let t;
+          if (r.iso) {
+            const tm = r.iso.split('T')[1].split(/[+-]/)[0].slice(0,8);
+            const [hh,mm,ss] = tm.split(':');
+            const h = parseInt(hh,10);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = ((h + 11) % 12) + 1;
+            t = `${h12}:${mm}:${ss} ${ampm}`;
+          } else {
+            t = new Date(r.ts*1000).toLocaleTimeString();
+          }
           return `<div>${t} · ${r.event} ${r.side||''} entry=${fmt(r.entry,2)} exit=${fmt(r.exit,2)} size=${r.size} <span style="color:${c}">$${fmt(pnl,2)}</span></div>`;
         }).join("")}</div>
       </div>
