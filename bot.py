@@ -143,7 +143,6 @@ asset_session_quarter: dict = {}
 asset_last_price_log_tick: dict = {}
 log_once_keys: dict         = {}
 consecutive_losses: dict    = {}   # asset -> int, resets on win
-asset_reentry_count: dict   = {}   # asset -> int, resets each session
 _last_buy_order_id: dict    = {}   # asset -> last successful BUY order_id (for fill lookup)
 _boot_quarter: dict         = {}   # asset -> first quarter seen at process startup (skip in-progress session)
 
@@ -165,12 +164,11 @@ def write_state(state: dict):
         pass
 
 def save_persistent():
-    """Save state that must survive restart: positions, loss streak, reentry count."""
+    """Save state that must survive restart: positions, loss streak, phase."""
     try:
         data = {
             "positions": positions,
             "consecutive_losses": consecutive_losses,
-            "asset_reentry_count": asset_reentry_count,
             "asset_phase": asset_phase,
             "asset_session_quarter": asset_session_quarter,
         }
@@ -190,7 +188,6 @@ def load_persistent():
             data = json.load(f)
         positions.update(data.get("positions", {}))
         consecutive_losses.update(data.get("consecutive_losses", {}))
-        asset_reentry_count.update(data.get("asset_reentry_count", {}))
         asset_phase.update(data.get("asset_phase", {}))
         asset_session_quarter.update(data.get("asset_session_quarter", {}))
         if positions or consecutive_losses:
@@ -1032,7 +1029,6 @@ def process_asset(asset: str):
     if asset not in asset_session_quarter or asset_session_quarter[asset] != quarter:
         asset_session_quarter[asset] = quarter
         asset_phase[asset]           = "WAIT_WINDOW"
-        asset_reentry_count[asset]   = 0
         log_once_reset(asset)
         losses = consecutive_losses.get(asset, 0)
         prev_phase = asset_phase.get(asset)
@@ -1134,14 +1130,8 @@ def process_asset(asset: str):
     # ---- Terminal phase guards ----
     phase = asset_phase.get(asset, "WAIT_WINDOW")
     if phase in ("BUY_FAILED", "STOP_LOSS"):
-        if mins_left <= 2.0 and asset_reentry_count.get(asset, 0) < 1:
-            log_once(asset, "LAST2_REENTRY", f"{asset} ⚡ Last-2m re-entry allowed (was {phase})")
-        else:
-            if asset_reentry_count.get(asset, 0) >= 1:
-                log_once(asset, "REENTRY_LIMIT", f"{asset} Re-entry limit reached — no more entries this session")
-            else:
-                log_once(asset, "BUY_FAILED", f"{asset} No re-entry this session")
-            return
+        log_once(asset, phase, f"{asset} No re-entry this session ({phase})")
+        return
     if phase == "PAUSED":
         log_once(asset, "PAUSED", f"{asset} ⏸ Paused ({consecutive_losses.get(asset,0)} losses) — resuming next session")
         return
@@ -1263,9 +1253,6 @@ def process_asset(asset: str):
             time.sleep(1)
 
     if buy_confirmed:
-        prev_phase = asset_phase.get(asset)
-        if prev_phase in ("BUY_FAILED", "STOP_LOSS"):
-            asset_reentry_count[asset] = asset_reentry_count.get(asset, 0) + 1
         requested_size = ASSET_ORDER_SIZE[asset]
 
         # Look up actual fill price + count from Kalshi
