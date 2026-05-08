@@ -121,18 +121,23 @@ def compute_stats(asset: str) -> dict:
     today_pnl  = round(sum(r.get("pnl", 0) for r in today_exits), 2)
     win_rate   = round(100 * len(wins) / len(exits), 1) if exits else 0.0
 
+    today_contracts = sum(r.get("size", 0) for r in today_exits)
+    total_contracts = sum(r.get("size", 0) for r in exits)
+
     recent = exits[::-1]   # all exits, newest first
 
     return {
-        "n_entries":  len(entries),
-        "n_exits":    len(exits),
-        "n_wins":     len(wins),
-        "n_losses":   len(losses),
-        "win_rate":   win_rate,
-        "total_pnl":  total_pnl,
-        "today_pnl":  today_pnl,
-        "today_n":    len(today_exits),
-        "recent":     recent,
+        "n_entries":       len(entries),
+        "n_exits":         len(exits),
+        "n_wins":          len(wins),
+        "n_losses":        len(losses),
+        "win_rate":        win_rate,
+        "total_pnl":       total_pnl,
+        "today_pnl":       today_pnl,
+        "today_n":         len(today_exits),
+        "today_contracts": today_contracts,
+        "total_contracts": total_contracts,
+        "recent":          recent,
     }
 
 
@@ -245,6 +250,7 @@ def build_state(asset: str) -> dict:
         "loss_streak": bot_state.get("consecutive_losses", {}).get(asset, 0),
         "max_losses": bot_state.get("max_consecutive_losses", 2),
         "bot_age": round(time.time() - bot_state.get("ts", 0), 1) if bot_state.get("ts") else None,
+        "config": bot_state.get("config", {}),
     }
 
 
@@ -366,6 +372,8 @@ function render(data) {
         <div class="row"><span>Total P&L (all)</span><span style="color:${color(s.stats?.total_pnl||0)};font-size:18px;font-weight:600">$${fmt(s.stats?.total_pnl,2)}</span></div>
         <div class="row"><span>Today P&L</span><span style="color:${color(s.stats?.today_pnl||0)}">$${fmt(s.stats?.today_pnl,2)} (${s.stats?.today_n||0} trades)</span></div>
         <div class="row"><span>Trades</span><span>${s.stats?.n_exits||0} closed (${s.stats?.n_entries||0} entries)</span></div>
+        <div class="row"><span>Contracts traded</span><span>${s.stats?.today_contracts||0} today · ${s.stats?.total_contracts||0} total</span></div>
+        <div class="row"><span>Order size (per trade)</span><span>${(s.config?.ASSET_ORDER_SIZE||{})[s.asset]||'—'} contracts</span></div>
         <div class="row"><span>Win rate</span><span>${fmt(s.stats?.win_rate,1)}% (${s.stats?.n_wins||0}W / ${s.stats?.n_losses||0}L)</span></div>
         <div style="margin-top:10px;font-size:11px;color:#8b949e">Recent trades:</div>
         <div style="margin-top:4px;font-size:10px;color:#6e7681">Showing all ${(s.stats?.recent||[]).length} closed trades (scroll)</div>
