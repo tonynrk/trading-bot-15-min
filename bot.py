@@ -44,12 +44,12 @@ except ImportError:
 # =========================
 # Strategy Configuration
 # =========================
-ENTRY                  = 0.82   # enter when YES or NO >= this — better R/R, relies on filter stack for quality
+ENTRY                  = 0.65   # relaxed from 0.82 → trade lower-price entries with better R:R, relying on Signal/Conviction/Settlement/Edge stack
 ENTRY_LAST2            = 0.85   # last-2-min fallback: enter if contract >= this (no signal required)
 LAST2_BYPASS_SIGNAL    = False         # global fallback (overridden per-asset below)
 LAST2_BYPASS_SIGNAL_ASSETS = set()     # disabled — last-2min is too volatile, require signal always
 EXIT                   = 0.50   # stop-loss: exit when contract drops below this (loosened from 0.55 to survive vol spikes)
-TIME_WINDOW            = 6.0    # only enter in last N minutes (tightened from 8 → less time exposed to swings)
+TIME_WINDOW            = 10.0   # widened from 6 → catch earlier entries; relies on Edge filter (d2) to reject when σ√T makes fair_prob too uncertain
 MIN_SETTLEMENT_SCORE   = 0.40   # settlement_score must confirm direction (tightened from 0.25 — higher conviction only)
 MIN_CONVICTION         = 0.55   # signal conviction must be at least this strong to enter
 USE_EDGE_FILTER        = True   # enforce d2 fair-value edge filter before entry

@@ -8,10 +8,10 @@ import math
 from typing import Optional
 
 # These thresholds are imported by both bot.py and dashboard.py
-ENTRY_PRICE          = 0.82
+ENTRY_PRICE          = 0.65
 ENTRY_LAST2          = 0.85
 EXIT_PRICE           = 0.50
-TIME_WINDOW          = 6.0
+TIME_WINDOW          = 10.0
 MIN_SETTLEMENT_SCORE = 0.40
 MIN_CONVICTION       = 0.55
 MIN_EDGE             = 0.03
