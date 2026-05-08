@@ -808,6 +808,25 @@ def has_existing_position(market_ticker: str, asset: str = "") -> bool:
     return bool(cnt and cnt > 0)
 
 
+def get_market_result(market_ticker: str, asset: str = "") -> Optional[str]:
+    """Return Kalshi's settled result for the given market: 'yes', 'no', or None
+    if the market hasn't settled / API call fails. Used at quarter-rolled
+    resolution to determine win/loss authoritatively rather than guessing
+    from the next session's snapshot price."""
+    if not market_ticker:
+        return None
+    res = kalshi_signed_request("GET", f"/trade-api/v2/markets/{market_ticker}")
+    if not res or res["status"] != 200:
+        return None
+    try:
+        m = json.loads(res["body"]).get("market", {})
+        result = m.get("result")
+        return result if result in ("yes", "no") else None
+    except Exception as e:
+        Log(f"MARKET result parse error: {e}", asset=asset)
+        return None
+
+
 def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
     """Reconstruct a pos dict from Kalshi for a position that exists on the
     exchange but isn't tracked locally (e.g. persistent state lost, manual
@@ -1198,7 +1217,19 @@ def process_asset(asset: str):
 
         # Quarter rolled → held to resolution
         if current_quarter_index() != pos["quarter_index"]:
-            won = is_win(cur)  # contract near $1 = win
+            # Authoritative win check: query Kalshi for this ticker's settled result.
+            # `cur` here is the NEXT session's price (snapshot already rolled forward),
+            # so using it for is_win() can flip the verdict — that's how
+            # KXBTC15M-26MAY081415-15 (yes-resolved win) got recorded as a $-22 loss.
+            result = get_market_result(pos["ticker"], asset=asset)
+            if result == "yes":
+                won = (pos["side"] == "UP")
+            elif result == "no":
+                won = (pos["side"] == "DOWN")
+            else:
+                # Fallback: settlement not yet visible on this endpoint
+                won = is_win(cur)
+                Log(f"{asset} ⚠ market result unavailable, falling back to price-based check (cur={fmt(cur)})", asset=asset)
             refresh_position_from_kalshi(asset, pos)
             sz = pos.get("size", ASSET_ORDER_SIZE[asset])
             pnl = compute_pnl(pos["entry"], 1.0 if won else 0.0, sz)
