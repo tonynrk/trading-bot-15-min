@@ -121,7 +121,7 @@ def compute_stats(asset: str) -> dict:
     today_pnl  = round(sum(r.get("pnl", 0) for r in today_exits), 2)
     win_rate   = round(100 * len(wins) / len(exits), 1) if exits else 0.0
 
-    recent = exits[-20:][::-1]   # last 20 exits, newest first
+    recent = exits[::-1]   # all exits, newest first
 
     return {
         "n_entries":  len(entries),
@@ -368,7 +368,8 @@ function render(data) {
         <div class="row"><span>Trades</span><span>${s.stats?.n_exits||0} closed (${s.stats?.n_entries||0} entries)</span></div>
         <div class="row"><span>Win rate</span><span>${fmt(s.stats?.win_rate,1)}% (${s.stats?.n_wins||0}W / ${s.stats?.n_losses||0}L)</span></div>
         <div style="margin-top:10px;font-size:11px;color:#8b949e">Recent trades:</div>
-        <div class="log" style="max-height:180px">${(s.stats?.recent||[]).map(r=>{
+        <div style="margin-top:4px;font-size:10px;color:#6e7681">Showing all ${(s.stats?.recent||[]).length} closed trades (scroll)</div>
+        <div class="log" style="max-height:360px">${(s.stats?.recent||[]).map(r=>{
           const pnl = r.pnl||0;
           const c = pnl>0?'#3fb950':pnl<0?'#f85149':'#8b949e';
           // iso is NY-labeled wall clock (e.g. "2026-05-08T00:39:11-04:00"); display date + H:M:S as-is
