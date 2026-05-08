@@ -59,10 +59,10 @@ LAST2_BYPASS_SIGNAL    = False         # global fallback (overridden per-asset b
 LAST2_BYPASS_SIGNAL_ASSETS = set()     # disabled — last-2min is too volatile, require signal always
 EXIT                   = 0.50   # stop-loss: exit when contract drops below this (loosened from 0.55 to survive vol spikes)
 TIME_WINDOW            = 10.0   # widened from 6 → catch earlier entries; relies on Edge filter (d2) to reject when σ√T makes fair_prob too uncertain
-MIN_SETTLEMENT_SCORE   = 0.40   # settlement_score must confirm direction (tightened from 0.25 — higher conviction only)
-MIN_CONVICTION         = 0.55   # signal conviction must be at least this strong to enter
+MIN_SETTLEMENT_SCORE   = 0.30   # |ss| floor (both sides)
+MIN_CONVICTION         = 0.40   # signal conviction floor (relaxed from 0.55)
 USE_EDGE_FILTER        = True   # enforce d2 fair-value edge filter before entry
-MIN_EDGE               = 0.03   # required edge (fair_prob - market_price) — e.g. 0.03 = 3¢ underpriced
+MIN_EDGE               = 0.01   # required edge (fair_prob - market_price), e.g. 0.01 = 1¢ underpriced
 MAX_CONSECUTIVE_LOSSES = 2      # pause trading after this many consecutive losses (tightened from 3)
 ASSETS       = ["BTC"]
 ORDER_SIZE   = 5   # default fallback

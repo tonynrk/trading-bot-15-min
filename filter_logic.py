@@ -12,9 +12,9 @@ ENTRY_PRICE          = 0.65
 ENTRY_LAST2          = 0.85
 EXIT_PRICE           = 0.50
 TIME_WINDOW          = 10.0
-MIN_SETTLEMENT_SCORE = 0.40
-MIN_CONVICTION       = 0.55
-MIN_EDGE             = 0.03
+MIN_SETTLEMENT_SCORE = 0.30
+MIN_CONVICTION       = 0.40
+MIN_EDGE             = 0.01
 MAX_CONSECUTIVE_LOSSES = 2
 
 # Order sizing
