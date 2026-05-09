@@ -1173,10 +1173,37 @@ _latest_snapshot: dict = {}   # asset -> last successful snapshot (for dashboard
 _latest_signal:   dict = {}   # asset -> last signal dict
 _latest_filters:  dict = {}   # asset -> last filter evaluation (for dashboard)
 
+_last_heartbeat: dict = {}  # asset -> last heartbeat ts
+
+def _heartbeat(asset: str, snapshot: dict, ws: Optional[dict]):
+    """Periodic liveness log so a frozen bot is visible. Fires every 60s per asset."""
+    now = time.time()
+    last = _last_heartbeat.get(asset, 0)
+    if now - last < 60.0:
+        return
+    _last_heartbeat[asset] = now
+    ws_age = (now - ws["ts"]) if ws else None
+    ws_status = f"WS {ws_age:.0f}s ago" if ws_age is not None else "no WS"
+    phase = asset_phase.get(asset, "?")
+    losses = consecutive_losses.get(asset, 0)
+    pos = positions.get(asset)
+    pos_str = f"{pos['side']}@{fmt(pos['entry'])}×{pos['size']}" if pos else "—"
+    Log(f"{asset} 💓 alive | {ws_status} | phase={phase} | losses={losses}/{MAX_CONSECUTIVE_LOSSES} | "
+        f"pos={pos_str} | up={fmt(snapshot.get('up'))} dn={fmt(snapshot.get('down'))} "
+        f"strike={snapshot.get('strike') or '—'} mins={snapshot.get('minutes_left'):.1f}",
+        asset=asset)
+
+
 def process_asset(asset: str):
     snapshot = get_kalshi_market_snapshot(asset)
     if not snapshot:
         log_once(asset, f"NO_DATA_{current_quarter_index()}", f"{asset} Waiting for market data")
+        # Even when API is down, emit a heartbeat so we know the loop is alive.
+        now = time.time()
+        last = _last_heartbeat.get(asset, 0)
+        if now - last >= 60.0:
+            _last_heartbeat[asset] = now
+            Log(f"{asset} 💓 alive | snapshot=None (Kalshi API issue?)", asset=asset)
         return
 
     ticker    = snapshot["market_ticker"]
@@ -1197,6 +1224,11 @@ def process_asset(asset: str):
         _contract_trackers.setdefault(asset, ContractPriceTracker()).push(up, down)
 
     ws_tag = " [WS]" if (ws and (time.time() - ws["ts"]) < 30.0) else " [REST]"
+
+    # Heartbeat — emit a liveness line every 60s even when no events fire,
+    # so a frozen WS / dead loop is immediately visible in the log instead of
+    # showing as 100+ minutes of silence.
+    _heartbeat(asset, snapshot, ws)
 
     # Cache latest live snapshot + signal for dashboard
     sig_live = get_signal(f"KX{asset}15M", strike=snapshot.get("strike")) if SIGNALS_AVAILABLE else None
