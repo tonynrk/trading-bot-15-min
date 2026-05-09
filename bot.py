@@ -39,7 +39,7 @@ except ImportError:
     SIGNALS_AVAILABLE = False
 
 from filter_logic import (
-    evaluate_filters, compute_pnl, is_win,
+    evaluate_filters, compute_pnl,
     ENTRY_PRICE as ENTRY,
     EXIT_PRICE as EXIT,
     TIME_WINDOW,
@@ -856,36 +856,27 @@ def get_kalshi_balance(force: bool = False) -> Optional[dict]:
         return None
 
 
-def get_market_result(market_ticker: str, asset: str = "",
-                      max_retries: int = 6, retry_delay: float = 1.0) -> Optional[str]:
+def get_market_result(market_ticker: str, asset: str = "") -> Optional[str]:
     """Return Kalshi's settled result for the given market: 'yes', 'no', or None
-    if the market hasn't settled / API call fails.
+    if the market hasn't settled yet / API call fails.
 
-    Kalshi typically takes 1-5 seconds to publish `result` after the close_time,
-    so we retry with a short delay before giving up. Without this, the bot was
-    recording 9 actual WINs as losses overnight because get_market_result
-    returned None and the price-based fallback misread the next session's price.
+    Single-shot call — no internal retry loop because the caller (process_asset)
+    is invoked every ~300ms in the main loop. If we return None, the position
+    stays open and the next tick will try again. This avoids blocking other
+    assets (e.g. ETH paper) while we wait for BTC settlement.
     """
     if not market_ticker:
         return None
-    for attempt in range(max_retries):
-        res = kalshi_signed_request("GET", f"/trade-api/v2/markets/{market_ticker}")
-        if res and res["status"] == 200:
-            try:
-                m = json.loads(res["body"]).get("market", {})
-                result = m.get("result")
-                if result in ("yes", "no"):
-                    if attempt > 0:
-                        Log(f"market result for {market_ticker} available after {attempt} retries", asset=asset)
-                    return result
-                # status='active'/'closed' but no result yet — settlement pending
-            except Exception as e:
-                Log(f"MARKET result parse error: {e}", asset=asset)
-                return None
-        if attempt < max_retries - 1:
-            time.sleep(retry_delay)
-    Log(f"market result for {market_ticker} not available after {max_retries} retries", asset=asset)
-    return None
+    res = kalshi_signed_request("GET", f"/trade-api/v2/markets/{market_ticker}")
+    if not res or res["status"] != 200:
+        return None
+    try:
+        m = json.loads(res["body"]).get("market", {})
+        result = m.get("result")
+        return result if result in ("yes", "no") else None
+    except Exception as e:
+        Log(f"MARKET result parse error: {e}", asset=asset)
+        return None
 
 
 def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
@@ -1297,19 +1288,22 @@ def process_asset(asset: str):
         # Quarter rolled → held to resolution
         if current_quarter_index() != pos["quarter_index"]:
             # Authoritative win check: query Kalshi for this ticker's settled result.
-            # `cur` here is the NEXT session's price (snapshot already rolled forward),
-            # so using it for is_win() can flip the verdict — that's how
-            # KXBTC15M-26MAY081415-15 (yes-resolved win) got recorded as a $-22 loss.
+            # If result is not yet published (settlement still in progress), DO NOT
+            # fall back to a price check — `cur` here is the next session's snapshot
+            # which has nothing to do with the just-resolved ticker. Instead leave
+            # the position open and the next 300ms tick will retry. We have ~15 min
+            # before the next session's window opens, so plenty of time to wait.
             result = get_market_result(pos["ticker"], asset=asset)
             if result == "yes":
                 won = (pos["side"] == "UP")
             elif result == "no":
                 won = (pos["side"] == "DOWN")
             else:
-                # Fallback: settlement not yet visible on this endpoint
-                won = is_win(cur)
-                Log(f"{asset} ⚠ market result unavailable, falling back to price-based check (cur={fmt(cur)})", asset=asset)
+                log_once(asset, f"RESOLVE_PENDING_{pos['ticker']}",
+                         f"{asset} ⏳ waiting for Kalshi settlement of {pos['ticker']}")
+                return  # retry on next tick
             refresh_position_from_kalshi(asset, pos)
+            log_once_keys.pop(f"{asset}|RESOLVE_PENDING_{pos['ticker']}", None)
             sz = pos.get("size", ASSET_ORDER_SIZE[asset])
             pnl = compute_pnl(pos["entry"], 1.0 if won else 0.0, sz)
             if won:
