@@ -856,23 +856,36 @@ def get_kalshi_balance(force: bool = False) -> Optional[dict]:
         return None
 
 
-def get_market_result(market_ticker: str, asset: str = "") -> Optional[str]:
+def get_market_result(market_ticker: str, asset: str = "",
+                      max_retries: int = 6, retry_delay: float = 1.0) -> Optional[str]:
     """Return Kalshi's settled result for the given market: 'yes', 'no', or None
-    if the market hasn't settled / API call fails. Used at quarter-rolled
-    resolution to determine win/loss authoritatively rather than guessing
-    from the next session's snapshot price."""
+    if the market hasn't settled / API call fails.
+
+    Kalshi typically takes 1-5 seconds to publish `result` after the close_time,
+    so we retry with a short delay before giving up. Without this, the bot was
+    recording 9 actual WINs as losses overnight because get_market_result
+    returned None and the price-based fallback misread the next session's price.
+    """
     if not market_ticker:
         return None
-    res = kalshi_signed_request("GET", f"/trade-api/v2/markets/{market_ticker}")
-    if not res or res["status"] != 200:
-        return None
-    try:
-        m = json.loads(res["body"]).get("market", {})
-        result = m.get("result")
-        return result if result in ("yes", "no") else None
-    except Exception as e:
-        Log(f"MARKET result parse error: {e}", asset=asset)
-        return None
+    for attempt in range(max_retries):
+        res = kalshi_signed_request("GET", f"/trade-api/v2/markets/{market_ticker}")
+        if res and res["status"] == 200:
+            try:
+                m = json.loads(res["body"]).get("market", {})
+                result = m.get("result")
+                if result in ("yes", "no"):
+                    if attempt > 0:
+                        Log(f"market result for {market_ticker} available after {attempt} retries", asset=asset)
+                    return result
+                # status='active'/'closed' but no result yet — settlement pending
+            except Exception as e:
+                Log(f"MARKET result parse error: {e}", asset=asset)
+                return None
+        if attempt < max_retries - 1:
+            time.sleep(retry_delay)
+    Log(f"market result for {market_ticker} not available after {max_retries} retries", asset=asset)
+    return None
 
 
 def adopt_kalshi_position(market_ticker: str, asset: str) -> Optional[dict]:
