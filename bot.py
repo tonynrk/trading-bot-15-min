@@ -710,7 +710,7 @@ def _approx_strike(ticker: str, asset: str) -> Optional[float]:
         return None
     _strike_fallback[ticker] = p
     Log(f"{asset} ⚠ Strike fallback for {ticker}: proxy=${p:,.2f} "
-        f"(Kalshi floor_strike not yet published; using current BTC composite as BRTI baseline)",
+        f"(Kalshi floor_strike not yet published; using current {asset} composite as BRTI baseline)",
         asset=asset)
     return p
 
