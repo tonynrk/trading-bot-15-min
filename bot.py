@@ -794,9 +794,43 @@ def get_kalshi_market_snapshot(asset: str, max_retries: int = 4) -> Optional[dic
 # =========================
 # Position Checks
 # =========================
+def get_market_position(market_ticker: str, asset: str = "") -> Optional[dict]:
+    """Return Kalshi's authoritative market position dict for this ticker:
+        {count: int, total_traded: float, market_exposure: float, fees_paid: float, realized_pnl: float}
+    All money fields in dollars. Returns None if API call fails or no position."""
+    if not market_ticker:
+        return None
+    res = kalshi_signed_request(
+        "GET", f"/trade-api/v2/portfolio/positions?ticker={market_ticker}"
+    )
+    if not res or res["status"] != 200:
+        Log(f"POSITION check: HTTP {res['status'] if res else 'no response'} for {market_ticker}", asset=asset)
+        return None
+    try:
+        data = json.loads(res["body"])
+        for p in data.get("market_positions", []):
+            if p.get("ticker") and p["ticker"] != market_ticker:
+                continue
+            qty = p.get("position")
+            if qty is None and p.get("position_fp") is not None:
+                qty = float(p["position_fp"])
+            if qty is None:
+                continue
+            return {
+                "count":            int(abs(round(float(qty)))),
+                "total_traded":     float(p.get("total_traded_dollars") or 0),
+                "market_exposure":  float(p.get("market_exposure_dollars") or 0),
+                "fees_paid":        float(p.get("fees_paid_dollars") or 0),
+                "realized_pnl":     float(p.get("realized_pnl_dollars") or 0),
+            }
+        return None
+    except Exception as e:
+        Log(f"POSITION parse error: {e} | body: {res['body'][:200]}", asset=asset)
+        return None
+
+
 def get_position_count(market_ticker: str, asset: str = "") -> Optional[int]:
-    """Return absolute count of contracts currently held on Kalshi for this market.
-    Returns None if API call fails (caller should fallback to local pos['size'])."""
+    """Backwards-compat wrapper — returns just the contract count."""
     if not market_ticker:
         return None
     res = kalshi_signed_request(
@@ -810,7 +844,6 @@ def get_position_count(market_ticker: str, asset: str = "") -> Optional[int]:
         for pos in data.get("market_positions", []):
             if pos.get("ticker") and pos["ticker"] != market_ticker:
                 continue
-            # position_fp is a 2-decimal string ("22.00") in contract units, NOT ×100.
             qty = pos.get("position")
             if qty is None and pos.get("position_fp") is not None:
                 qty = float(pos["position_fp"])
@@ -1483,11 +1516,22 @@ def process_asset(asset: str):
             "size":          fill_size,
         }
         asset_phase[asset] = "IN_POSITION"
+
+        # Authoritative cost from Kalshi /portfolio/positions (total_traded_dollars
+        # already includes fees and aggregates all fills for this market).
+        mp = get_market_position(ticker, asset=asset)
+        if mp and mp["total_traded"] > 0:
+            cost_authoritative = round(mp["total_traded"], 2)
+            kalshi_fees = round(mp["fees_paid"], 4)
+        else:
+            cost_authoritative = round(fill_price * fill_size + fill_fees, 2)
+            kalshi_fees = round(fill_fees, 4)
+
         journal("ENTRY", asset, side=side, entry=round(fill_price, 4),
                 size=fill_size, ticker=ticker,
-                cost=round(fill_price * fill_size + fill_fees, 2),
+                cost=cost_authoritative,
                 trigger_price=round(entry_price, 4),
-                fees=round(fill_fees, 4),
+                fees=kalshi_fees,
                 order_id=order_id,
                 conviction=(sig.conviction if sig else None),
                 settlement_score=(sig.settlement_score if sig else None),
