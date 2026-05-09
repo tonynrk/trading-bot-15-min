@@ -65,7 +65,7 @@ except ImportError:
 # Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES)
 # are imported from filter_logic.py — single source of truth shared with the
 # dashboard. Edit them there, not here.
-ASSETS                 = ["BTC"]
+ASSETS                 = ["BTC", "ETH"]
 ASSET_ORDER_SIZE       = {"BTC": 120, "ETH": 40}  # contracts per trade — BTC sized for ~6% of $2,000 bankroll; must define every asset in ASSETS
 # Per-asset trading toggle — assets with False are tracked (signal/dashboard)
 # but no buy orders are placed. Use this to data-only-test a new asset before
@@ -154,6 +154,7 @@ _boot_quarter: dict         = {}   # asset -> first quarter seen at process star
 # Trade Journal (append-only JSONL)
 # =========================
 JOURNAL_FILE = os.path.join(_LOG_DIR, "trades.jsonl")
+PAPER_FILE   = os.path.join(_LOG_DIR, "paper_trades.jsonl")
 STATE_FILE   = os.path.join(_LOG_DIR, "bot_state.json")
 PERSIST_FILE = os.path.join(_LOG_DIR, "bot_persistent.json")
 
@@ -168,7 +169,7 @@ def write_state(state: dict):
         pass
 
 def save_persistent():
-    """Save state that must survive restart: positions, loss streak, phase, current quarter, last buy order_id."""
+    """Save state that must survive restart: positions, loss streak, phase, current quarter, last buy order_id, paper positions."""
     try:
         data = {
             "positions": positions,
@@ -176,6 +177,7 @@ def save_persistent():
             "asset_phase": asset_phase,
             "asset_session_quarter": asset_session_quarter,
             "last_buy_order_id": _last_buy_order_id,
+            "paper_positions": paper_positions,
         }
         tmp = PERSIST_FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
@@ -196,6 +198,7 @@ def load_persistent():
         asset_phase.update(data.get("asset_phase", {}))
         asset_session_quarter.update(data.get("asset_session_quarter", {}))
         _last_buy_order_id.update(data.get("last_buy_order_id", {}))
+        paper_positions.update(data.get("paper_positions", {}))
         if positions or consecutive_losses:
             Log(f"Restored state: positions={list(positions.keys())} losses={dict(consecutive_losses)}")
     except Exception as e:
@@ -209,6 +212,18 @@ def journal(event: str, asset: str, **fields):
             f.write(json.dumps(rec) + "\n")
     except Exception as e:
         Log(f"journal write error: {e}")
+
+def paper_journal(event: str, asset: str, **fields):
+    """Append paper-trade events to paper_trades.jsonl (separate from real trades)."""
+    try:
+        rec = {"ts": time.time(), "iso": _now_ny().isoformat(), "event": event, "asset": asset, **fields}
+        with open(PAPER_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec) + "\n")
+    except Exception as e:
+        Log(f"paper journal write error: {e}")
+
+# Per-asset paper position state for data-only assets
+paper_positions: dict = {}   # asset -> {side, entry, ticker, quarter_index, size}
 
 # =========================
 # Contract Price Tracker
@@ -1242,6 +1257,23 @@ def process_asset(asset: str):
             asset_phase[asset] = "HAS_POSITION"
         return
 
+    # ---- Resolve paper position if quarter rolled (data-only assets) ----
+    paper_pos = paper_positions.get(asset)
+    if paper_pos and current_quarter_index() != paper_pos["quarter_index"]:
+        result = get_market_result(paper_pos["ticker"], asset=asset)
+        if result in ("yes", "no"):
+            won = (result == "yes" and paper_pos["side"] == "UP") or \
+                  (result == "no" and paper_pos["side"] == "DOWN")
+            sz = paper_pos["size"]
+            pnl = compute_pnl(paper_pos["entry"], 1.0 if won else 0.0, sz)
+            paper_journal("PAPER_RESOLUTION", asset, side=paper_pos["side"],
+                          entry=round(paper_pos["entry"], 4),
+                          exit=1.0 if won else 0.0, size=sz, won=won, pnl=pnl,
+                          ticker=paper_pos["ticker"])
+            Log(f"{asset} 📊 PAPER {paper_pos['side']} → {'✓ win' if won else '✗ loss'} (${pnl})", asset=asset)
+            del paper_positions[asset]
+        # else: market.result not yet available → leave paper_pos for next tick to retry
+
     # ---- Monitor open position ----
     pos = positions.get(asset)
     if pos:
@@ -1356,10 +1388,29 @@ def process_asset(asset: str):
 
     # Per-asset trading toggle — data-only assets pass all the filter checks
     # above (so dashboard sees the signal would have fired) but bail before
-    # placing the order.
+    # placing the order. We DO record a paper trade so we can compute paper PnL.
     if not TRADING_ENABLED.get(asset, True):
-        log_once(asset, "DATA_ONLY",
-                 f"{asset} 📊 data-only — would have entered {side} @ {fmt(entry_price)} (TRADING_ENABLED={TRADING_ENABLED.get(asset)})")
+        if asset not in paper_positions:
+            paper_size = ASSET_ORDER_SIZE.get(asset, 0)
+            paper_positions[asset] = {
+                "side": side,
+                "entry": entry_price,
+                "ticker": ticker,
+                "quarter_index": current_quarter_index(),
+                "size": paper_size,
+            }
+            paper_journal("PAPER_ENTRY", asset, side=side, entry=round(entry_price, 4),
+                          size=paper_size, ticker=ticker,
+                          cost=round(entry_price * paper_size, 2),
+                          conviction=(sig.conviction if sig else None),
+                          settlement_score=(sig.settlement_score if sig else None),
+                          fair_prob=(edge_info["fair_prob"] if edge_info else None),
+                          edge=(edge_info["edge_up"] if edge_info and side == "UP" else
+                                edge_info["edge_down"] if edge_info else None))
+            Log(f"{asset} 📊 PAPER entry {side} @ {fmt(entry_price)} size={paper_size}", asset=asset)
+        else:
+            log_once(asset, "DATA_ONLY",
+                     f"{asset} 📊 data-only — paper position open ({paper_positions[asset]['side']} @ {fmt(paper_positions[asset]['entry'])})")
         return
 
     if not can_place_order_now(asset):
