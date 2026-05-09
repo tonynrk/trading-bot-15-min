@@ -65,8 +65,13 @@ except ImportError:
 # Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES)
 # are imported from filter_logic.py — single source of truth shared with the
 # dashboard. Edit them there, not here.
-ASSETS                 = ["BTC"]
-ASSET_ORDER_SIZE       = {"BTC": 90, "ETH": 74}  # contracts per trade — sized for ~$2,111 bankroll (~4%/trade); must define every asset in ASSETS
+ASSETS                 = ["BTC", "ETH"]
+ASSET_ORDER_SIZE       = {"BTC": 100, "ETH": 40}  # contracts per trade — sized for ~$2,000 bankroll (BTC ~5%, ETH ~2%); must define every asset in ASSETS
+# Per-asset trading toggle — assets with False are tracked (signal/dashboard)
+# but no buy orders are placed. Use this to data-only-test a new asset before
+# committing capital. ASSETS controls what we monitor; TRADING_ENABLED controls
+# what we trade.
+TRADING_ENABLED        = {"BTC": True, "ETH": False}
 
 # =========================
 # API / Order Config
@@ -1349,6 +1354,14 @@ def process_asset(asset: str):
         log_once(asset, "PRICE_HIGH", f"{asset} Price too high ({fmt(entry_price)}), skipping")
         return
 
+    # Per-asset trading toggle — data-only assets pass all the filter checks
+    # above (so dashboard sees the signal would have fired) but bail before
+    # placing the order.
+    if not TRADING_ENABLED.get(asset, True):
+        log_once(asset, "DATA_ONLY",
+                 f"{asset} 📊 data-only — would have entered {side} @ {fmt(entry_price)} (TRADING_ENABLED={TRADING_ENABLED.get(asset)})")
+        return
+
     if not can_place_order_now(asset):
         log_once(asset, "NO_CREDS", f"{asset} Missing credentials")
         return
@@ -1502,6 +1515,7 @@ def main():
                     "MIN_CONVICTION": MIN_CONVICTION,
                     "MIN_EDGE": MIN_EDGE,
                     "ASSET_ORDER_SIZE": ASSET_ORDER_SIZE,
+                    "TRADING_ENABLED": TRADING_ENABLED,
                 },
             }
             write_state(state)

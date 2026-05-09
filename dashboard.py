@@ -30,7 +30,7 @@ from signals import start_feed, get_signal, d2_edge, get_live_price, get_ticks
 from filter_logic import evaluate_filters, compute_z_score, EXIT_PRICE, MIN_EDGE
 
 # ---- Config ---------------------------------------------------------------
-ASSETS = ["BTC"]
+ASSETS = ["BTC", "ETH"]
 PORT = 8080   # matches old project's web_dashboard.py — Windows Firewall already open
 KALSHI_API_BASE = "https://api.elections.kalshi.com"
 ASSET_SERIES_MAP = {"BTC": "KXBTC15M", "ETH": "KXETH15M"}
@@ -312,7 +312,7 @@ function render(data) {
     return `
     <div class="grid">
       <div class="card">
-        <h2>${s.asset} — Kalshi Contract <span style="font-size:10px;color:${k.source==='WS'?'#3fb950':'#d4a72c'}">[${k.source||'?'}]</span></h2>
+        <h2>${s.asset} — Kalshi Contract <span style="font-size:10px;color:${k.source==='WS'?'#3fb950':'#d4a72c'}">[${k.source||'?'}]</span> ${(s.config?.TRADING_ENABLED||{})[s.asset]===false?'<span style="font-size:10px;background:#d4a72c;color:#000;padding:2px 6px;border-radius:3px;margin-left:6px">📊 DATA ONLY</span>':'<span style="font-size:10px;background:#3fb950;color:#000;padding:2px 6px;border-radius:3px;margin-left:6px">💰 LIVE</span>'}</h2>
         <div class="big">UP ${fmt(k.up,2)} / DOWN ${fmt(k.down,2)}</div>
         <div class="row"><span>Ticker</span><span style="font-size:10px">${k.ticker||"—"}</span></div>
         <div class="row"><span>Strike</span><span>${k.strike||"—"}</span></div>
