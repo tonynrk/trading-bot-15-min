@@ -199,3 +199,17 @@
 2026-05-09 12:17:05-0400 | ETH New session (KXETH15M-26MAY091230-30)
 2026-05-09 12:17:06-0400 | ETH WS re-subscribed to KXETH15M-26MAY091230-30
 2026-05-09 12:17:06-0400 | ETH WS subscribed: channel=orderbook_delta sid=4
+2026-05-09 12:25:44-0400 | ETH UP triggered @ 0.97 [WS] conviction=0.50 ss=+0.47 — placing order
+2026-05-09 12:25:44-0400 | ORDER payload: {"ticker": "KXETH15M-26MAY091230-30", "action": "buy", "side": "yes", "count": 40, "type": "limit", "yes_price": 98, "client_order_id": "10b7a8c1-80cf-4c66-87f8-a8a6c10f0d08"}
+2026-05-09 12:25:44-0400 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"10b7a8c1-80cf-4c66-87f8-a8a6c10f0d08","created_time":"2026-05-09T16:25:44.929873Z","fill_count_fp":"15.00","initial_count_fp":"40.00","last_update_time":"2026-05-09T16:25:44.929873Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no_
+2026-05-09 12:25:47-0400 | ETH Position confirmed
+2026-05-09 12:25:47-0400 | ETH Fill ≠ trigger: trigger=0.97 fill=0.98 size=40/40 fees=$0.0350 (2 fills)
+2026-05-09 12:25:47-0400 | ETH Holding UP @ 0.98 (fill) — stop-loss @ 0.5
+2026-05-09 12:29:09-0400 | ETH ⚡ stop-loss @ 0.45 (entry=0.98)
+2026-05-09 12:29:09-0400 | ORDER payload: {"ticker": "KXETH15M-26MAY091230-30", "action": "sell", "side": "yes", "count": 40, "type": "limit", "yes_price": 1, "client_order_id": "c1890021-2f67-4e2b-984d-59b189731cd7", "reduce_only": true, "time_in_force": "immediate_or_cancel"}
+2026-05-09 12:29:09-0400 | ORDER response: HTTP 201 | {"order":{"action":"sell","client_order_id":"c1890021-2f67-4e2b-984d-59b189731cd7","created_time":"2026-05-09T16:29:09.666666Z","fill_count_fp":"40.00","initial_count_fp":"40.00","last_update_time":"2026-05-09T16:29:09.666666Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","no
+2026-05-09 12:29:09-0400 | ETH Position closed (stop-loss)
+2026-05-09 12:29:09-0400 | ETH Stop-loss PnL: $-21.07 | Consecutive losses: 1/2
+2026-05-09 12:30:19-0400 | ETH New session (KXETH15M-26MAY091245-45)
+2026-05-09 12:30:19-0400 | ETH WS re-subscribed to KXETH15M-26MAY091245-45
+2026-05-09 12:30:19-0400 | ETH WS subscribed: channel=orderbook_delta sid=5
