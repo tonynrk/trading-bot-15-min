@@ -177,3 +177,25 @@
 2026-05-09 09:45:19-0400 | ETH New session (KXETH15M-26MAY091000-00)
 2026-05-09 09:45:20-0400 | ETH WS re-subscribed to KXETH15M-26MAY091000-00
 2026-05-09 09:45:20-0400 | ETH WS subscribed: channel=orderbook_delta sid=37
+2026-05-09 10:00:24-0400 | ETH New session (KXETH15M-26MAY091015-15)
+2026-05-09 10:00:25-0400 | ETH WS re-subscribed to KXETH15M-26MAY091015-15
+2026-05-09 10:00:25-0400 | ETH WS subscribed: channel=orderbook_delta sid=38
+2026-05-09 10:15:28-0400 | ETH New session (KXETH15M-26MAY091030-30)
+2026-05-09 10:15:29-0400 | ETH WS re-subscribed to KXETH15M-26MAY091030-30
+2026-05-09 10:15:29-0400 | ETH WS subscribed: channel=orderbook_delta sid=39
+2026-05-09 10:17:12-0400 | ETH WS connected
+2026-05-09 10:17:12-0400 | ETH 🟡 Boot mid-session (KXETH15M-26MAY091030-30) — skipping until next clean session
+2026-05-09 10:17:13-0400 | ETH WS re-subscribed to KXETH15M-26MAY091030-30
+2026-05-09 10:17:13-0400 | ETH WS subscribed: channel=ticker sid=1
+2026-05-09 10:17:13-0400 | ETH WS subscribed: channel=orderbook_delta sid=2
+2026-05-09 10:24:39-0400 | ETH WS connected
+2026-05-09 10:24:39-0400 | ETH 🟡 Boot mid-session (KXETH15M-26MAY091030-30) — skipping until next clean session
+2026-05-09 10:24:40-0400 | ETH WS re-subscribed to KXETH15M-26MAY091030-30
+2026-05-09 10:24:40-0400 | ETH WS subscribed: channel=ticker sid=1
+2026-05-09 10:24:40-0400 | ETH WS subscribed: channel=orderbook_delta sid=2
+2026-05-09 10:30:02-0400 | ETH New session (KXETH15M-26MAY091045-45)
+2026-05-09 10:30:03-0400 | ETH WS re-subscribed to KXETH15M-26MAY091045-45
+2026-05-09 10:30:03-0400 | ETH WS subscribed: channel=orderbook_delta sid=3
+2026-05-09 12:17:05-0400 | ETH New session (KXETH15M-26MAY091230-30)
+2026-05-09 12:17:06-0400 | ETH WS re-subscribed to KXETH15M-26MAY091230-30
+2026-05-09 12:17:06-0400 | ETH WS subscribed: channel=orderbook_delta sid=4

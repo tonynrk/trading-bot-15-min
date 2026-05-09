@@ -874,3 +874,31 @@
 2026-05-09 09:45:04-0400 | BTC New session (KXBTC15M-26MAY091000-00)
 2026-05-09 09:45:04-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091000-00
 2026-05-09 09:45:04-0400 | BTC WS subscribed: channel=orderbook_delta sid=37
+2026-05-09 10:00:05-0400 | BTC New session (KXBTC15M-26MAY091015-15)
+2026-05-09 10:00:05-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091015-15
+2026-05-09 10:00:05-0400 | BTC WS subscribed: channel=orderbook_delta sid=38
+2026-05-09 10:15:08-0400 | BTC New session (KXBTC15M-26MAY091030-30)
+2026-05-09 10:15:09-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091030-30
+2026-05-09 10:15:09-0400 | BTC WS subscribed: channel=orderbook_delta sid=39
+2026-05-09 10:17:12-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY091030-30) — skipping until next clean session
+2026-05-09 10:17:12-0400 | BTC WS connected
+2026-05-09 10:17:12-0400 | BTC WS subscribed to KXBTC15M-26MAY091030-30 (ticker + orderbook_delta)
+2026-05-09 10:17:12-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-09 10:17:12-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-09 10:24:39-0400 | BTC WS connected
+2026-05-09 10:24:39-0400 | BTC 🟡 Boot mid-session (KXBTC15M-26MAY091030-30) — skipping until next clean session
+2026-05-09 10:24:39-0400 | BTC WS subscribed to KXBTC15M-26MAY091030-30 (ticker + orderbook_delta)
+2026-05-09 10:24:39-0400 | BTC WS subscribed: channel=ticker sid=1
+2026-05-09 10:24:39-0400 | BTC WS subscribed: channel=orderbook_delta sid=2
+2026-05-09 10:30:09-0400 | BTC New session (KXBTC15M-26MAY091045-45)
+2026-05-09 10:30:09-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091045-45
+2026-05-09 10:30:09-0400 | BTC WS subscribed: channel=orderbook_delta sid=3
+2026-05-09 12:17:05-0400 | BTC New session (KXBTC15M-26MAY091230-30)
+2026-05-09 12:17:06-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091230-30
+2026-05-09 12:17:06-0400 | BTC WS subscribed: channel=orderbook_delta sid=4
+2026-05-09 12:20:33-0400 | BTC UP triggered @ 0.95 [WS] conviction=0.65 ss=+0.68 — placing order
+2026-05-09 12:20:33-0400 | ORDER payload: {"ticker": "KXBTC15M-26MAY091230-30", "action": "buy", "side": "yes", "count": 120, "type": "limit", "yes_price": 97, "client_order_id": "de3d2513-9ef7-497e-bd9e-bf9a4a012dbf"}
+2026-05-09 12:20:33-0400 | ORDER response: HTTP 201 | {"order":{"action":"buy","client_order_id":"de3d2513-9ef7-497e-bd9e-bf9a4a012dbf","created_time":"2026-05-09T16:20:33.342847Z","fill_count_fp":"120.00","initial_count_fp":"120.00","last_update_time":"2026-05-09T16:20:33.342847Z","maker_fees_dollars":"0.000000","maker_fill_cost_dollars":"0.000000","n
+2026-05-09 12:20:35-0400 | BTC Position confirmed
+2026-05-09 12:20:35-0400 | BTC Fill ≠ trigger: trigger=0.95 fill=0.96 size=120/120 fees=$0.2930 (4 fills)
+2026-05-09 12:20:35-0400 | BTC Holding UP @ 0.96 (fill) — stop-loss @ 0.5
