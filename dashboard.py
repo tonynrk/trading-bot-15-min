@@ -30,7 +30,7 @@ from signals import start_feed, get_signal, d2_edge, get_live_price, get_ticks
 from filter_logic import evaluate_filters, compute_z_score, EXIT_PRICE, MIN_EDGE
 
 # ---- Config ---------------------------------------------------------------
-ASSETS = ["BTC", "ETH"]
+ASSETS = ["BTC"]
 PORT = 8080   # matches old project's web_dashboard.py — Windows Firewall already open
 KALSHI_API_BASE = "https://api.elections.kalshi.com"
 ASSET_SERIES_MAP = {"BTC": "KXBTC15M", "ETH": "KXETH15M"}

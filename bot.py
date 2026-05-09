@@ -65,8 +65,8 @@ except ImportError:
 # Filter thresholds (ENTRY, EXIT, TIME_WINDOW, MIN_*, MAX_CONSECUTIVE_LOSSES)
 # are imported from filter_logic.py — single source of truth shared with the
 # dashboard. Edit them there, not here.
-ASSETS                 = ["BTC", "ETH"]
-ASSET_ORDER_SIZE       = {"BTC": 100, "ETH": 40}  # contracts per trade — sized for ~$2,000 bankroll (BTC ~5%, ETH ~2%); must define every asset in ASSETS
+ASSETS                 = ["BTC"]
+ASSET_ORDER_SIZE       = {"BTC": 120, "ETH": 40}  # contracts per trade — BTC sized for ~6% of $2,000 bankroll; must define every asset in ASSETS
 # Per-asset trading toggle — assets with False are tracked (signal/dashboard)
 # but no buy orders are placed. Use this to data-only-test a new asset before
 # committing capital. ASSETS controls what we monitor; TRADING_ENABLED controls
