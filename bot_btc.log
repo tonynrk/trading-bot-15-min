@@ -902,3 +902,8 @@
 2026-05-09 12:20:35-0400 | BTC Position confirmed
 2026-05-09 12:20:35-0400 | BTC Fill ≠ trigger: trigger=0.95 fill=0.96 size=120/120 fees=$0.2930 (4 fills)
 2026-05-09 12:20:35-0400 | BTC Holding UP @ 0.96 (fill) — stop-loss @ 0.5
+2026-05-09 12:30:10-0400 | BTC Position size 120→230 (late fills)
+2026-05-09 12:30:10-0400 | BTC UP held to resolution ✓ win (+$8.11) — streak reset
+2026-05-09 12:30:26-0400 | BTC New session (KXBTC15M-26MAY091245-45)
+2026-05-09 12:30:26-0400 | BTC WS re-subscribed to KXBTC15M-26MAY091245-45
+2026-05-09 12:30:26-0400 | BTC WS subscribed: channel=orderbook_delta sid=5
