@@ -10,6 +10,7 @@ bot_persistent.json
 *.pid
 *.log
 !bot_btc.log
+!bot_eth.log
 !trades.jsonl
 
 # Python
