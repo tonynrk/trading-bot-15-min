@@ -27,7 +27,7 @@ from fastapi.responses import HTMLResponse
 import uvicorn
 
 from signals import start_feed, get_signal, d2_edge, get_live_price, get_ticks
-from filter_logic import evaluate_filters, compute_z_score, EXIT_PRICE, MIN_EDGE
+from filter_logic import evaluate_filters, compute_z_score, EXIT_PRICE
 
 # ---- Config ---------------------------------------------------------------
 ASSETS = ["BTC", "ETH"]
@@ -167,7 +167,7 @@ def compute_filters(asset: str, snap: Optional[dict], sig) -> dict:
         ticks = get_ticks(asset)
         if btc_p:
             e = d2_edge(btc_p, snap["strike"], snap["up"], sig.minutes_left,
-                        ticks=ticks, asset=asset, min_edge=MIN_EDGE)
+                        ticks=ticks, asset=asset, min_edge=0.0)
             fair_prob = e["fair_prob"]
             realized_vol = e.get("annualized_vol")
             z_score = compute_z_score(btc_p, snap["strike"], sig.minutes_left, realized_vol)
