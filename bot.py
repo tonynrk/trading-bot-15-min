@@ -70,7 +70,7 @@ ASSET_ORDER_SIZE       = {"BTC": 120, "ETH": 40}  # contracts per trade — BTC 
 # but no buy orders are placed. Use this to data-only-test a new asset before
 # committing capital. ASSETS controls what we monitor; TRADING_ENABLED controls
 # what we trade.
-TRADING_ENABLED        = {"BTC": True, "ETH": True}
+TRADING_ENABLED        = {"BTC": True, "ETH": False}
 
 # =========================
 # API / Order Config
