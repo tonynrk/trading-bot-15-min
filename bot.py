@@ -45,6 +45,7 @@ from filter_logic import (
     TIME_WINDOW,
     MIN_SETTLEMENT_SCORE,
     MIN_CONVICTION,
+    MIN_EDGE,
     MAX_CONSECUTIVE_LOSSES,
 )
 
@@ -1267,7 +1268,7 @@ def process_asset(asset: str):
         btc_p = get_live_price(asset)
         if btc_p:
             edge_info = d2_edge(btc_p, snapshot["strike"], up, mins_left,
-                                ticks=get_ticks(asset), asset=asset, min_edge=0.0)
+                                ticks=get_ticks(asset), asset=asset, min_edge=MIN_EDGE)
             fair_p = edge_info["fair_prob"]
             # Periodic log of pricing inputs (once per minute) for post-mortem.
             side_lbl = "UP" if fair_p >= 0.5 else "DOWN"
@@ -1646,6 +1647,7 @@ def main():
                     "TIME_WINDOW": TIME_WINDOW,
                     "MIN_SETTLEMENT_SCORE": MIN_SETTLEMENT_SCORE,
                     "MIN_CONVICTION": MIN_CONVICTION,
+                    "MIN_EDGE": MIN_EDGE,
                     "ASSET_ORDER_SIZE": ASSET_ORDER_SIZE,
                     "TRADING_ENABLED": TRADING_ENABLED,
                 },
