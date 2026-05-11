@@ -13,7 +13,6 @@ EXIT_PRICE           = 0.50
 TIME_WINDOW          = 10.0
 MIN_SETTLEMENT_SCORE = 0.40
 MIN_CONVICTION       = 0.40
-MIN_EDGE             = 0.00
 MAX_CONSECUTIVE_LOSSES = 2
 
 def pick_side(up: float, down: float) -> str:
@@ -38,7 +37,8 @@ def evaluate_filters(
     side = pick_side(up, down)
     market_price = up if side == "UP" else down
 
-    # Edge: derive from fair_prob (which assumes YES/UP price reference)
+    # Edge is no longer a filter — still computed for diagnostic display
+    # (fair_prob and edge_val pass through to dashboard / journal for analysis).
     edge_val = None
     if fair_prob is not None:
         edge_up   = fair_prob - up
@@ -70,10 +70,6 @@ def evaluate_filters(
         {"name": f"Settlement ≥ {MIN_SETTLEMENT_SCORE} for {side}",
          "pass": ss_ok,
          "value": f"{settlement_score:+.2f}" if settlement_score is not None else "—"},
-
-        {"name": f"Edge ≥ {MIN_EDGE}",
-         "pass": (edge_val is not None and edge_val >= MIN_EDGE),
-         "value": f"{edge_val:+.3f}" if edge_val is not None else "n/a"},
     ]
 
     return {
